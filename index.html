@@ -746,12 +746,15 @@ function cSaveUrl(){const v=document.getElementById('c-url-input').value.trim();
 async function cLoadState(){
   if(!cUrl){document.getElementById('c-setup').style.display='block';cSyncStatus('err','URL 미설정');return;}
   cSyncStatus('loading','동기화 중...');
-  try{const r=await fetch(cUrl);const j=await r.json();if(j.ok){cHistory=j.data.history||[];cSyncStatus('ok','실시간 연결됨 ●');cRenderHistory();}else cSyncStatus('err','실패');}
+  try{const r=await fetch(cUrl);const j=await r.json();if(j.ok){
+    cHistory=j.data.history||[];
+    if(j.data.persons&&j.data.persons.length){cPersons=j.data.persons;localStorage.setItem('coffee-names',JSON.stringify(cPersons));}
+    cSyncStatus('ok','실시간 연결됨 ●');cRenderHistory();cRenderPersons();}else cSyncStatus('err','실패');}
   catch(e){cSyncStatus('err','연결 오류');document.getElementById('c-setup').style.display='block';}
 }
 async function cSaveToServer(){
   if(!cUrl||cSaving)return;cSaving=true;cSyncStatus('loading','저장 중...');
-  try{await fetch(cUrl,{method:'POST',body:JSON.stringify({history:cHistory})});cSyncStatus('ok','저장됨 ●');}
+  try{await fetch(cUrl,{method:'POST',body:JSON.stringify({history:cHistory,persons:cPersons})});cSyncStatus('ok','저장됨 ●');}
   catch(e){cSyncStatus('err','저장 실패');}finally{cSaving=false;}
 }
 async function cSaveResult(mode,who){
@@ -770,9 +773,9 @@ function cRenderHistory(){
 function cAddPerson(){
   const input=document.getElementById('c-person-input');const name=input.value.trim();if(!name)return;
   if(cPersons.includes(name)){showToast('이미 있어요!');return;}
-  cPersons.push(name);input.value='';localStorage.setItem('coffee-names',JSON.stringify(cPersons));cRenderPersons();cDrawRoulette();cBuildLadder();
+  cPersons.push(name);input.value='';localStorage.setItem('coffee-names',JSON.stringify(cPersons));cRenderPersons();cDrawRoulette();cBuildLadder();cSaveToServer();
 }
-function cRemovePerson(idx){cPersons.splice(idx,1);localStorage.setItem('coffee-names',JSON.stringify(cPersons));cRenderPersons();cDrawRoulette();cBuildLadder();}
+function cRemovePerson(idx){cPersons.splice(idx,1);localStorage.setItem('coffee-names',JSON.stringify(cPersons));cRenderPersons();cDrawRoulette();cBuildLadder();cSaveToServer();}
 function cRenderPersons(){
   const el=document.getElementById('c-persons-grid');
   if(!cPersons.length){el.innerHTML='<span style="font-size:12px;color:#7a6050">이름을 추가해주세요</span>';return;}
@@ -903,30 +906,34 @@ function clSaveUrl(){const v=document.getElementById('cl-url-input').value.trim(
 async function clLoadState(){
   if(!clUrl){document.getElementById('cl-setup').style.display='block';clSyncStatus('err','URL 미설정');return;}
   clSyncStatus('loading','동기화 중...');
-  try{const r=await fetch(clUrl);const j=await r.json();if(j.ok){clHistory=j.data.history||[];clSyncStatus('ok','실시간 연결됨 ●');clRenderHistory();}else clSyncStatus('err','실패');}
+  try{const r=await fetch(clUrl);const j=await r.json();if(j.ok){
+    clHistory=j.data.history||[];
+    if(j.data.persons&&j.data.persons.length){clPersons=j.data.persons;localStorage.setItem('clean-persons',JSON.stringify(clPersons));}
+    if(j.data.zones&&j.data.zones.length){clZones=j.data.zones;localStorage.setItem('clean-zones',JSON.stringify(clZones));}
+    clSyncStatus('ok','실시간 연결됨 ●');clRenderHistory();clRenderPersons();clRenderZones();}else clSyncStatus('err','실패');}
   catch(e){clSyncStatus('err','연결 오류');document.getElementById('cl-setup').style.display='block';}
 }
 async function clSaveToServer(){
   if(!clUrl||clSaving)return;clSaving=true;clSyncStatus('loading','저장 중...');
-  try{await fetch(clUrl,{method:'POST',body:JSON.stringify({history:clHistory})});clSyncStatus('ok','저장됨 ●');}
+  try{await fetch(clUrl,{method:'POST',body:JSON.stringify({history:clHistory,persons:clPersons,zones:clZones})});clSyncStatus('ok','저장됨 ●');}
   catch(e){clSyncStatus('err','저장 실패');}finally{clSaving=false;}
 }
 function clUpdateBadges(){document.getElementById('cl-badge-p').textContent=clPersons.length;document.getElementById('cl-badge-z').textContent=clZones.length;document.getElementById('cl-badge-r').textContent=(clPersons.length&&clZones.length)?`${clPersons.length}:${clZones.length}`:'-';}
-function clAddPerson(){const input=document.getElementById('cl-person-input');const name=input.value.trim();if(!name)return;if(clPersons.includes(name)){showToast('이미 있어요!');return;}clPersons.push(name);input.value='';localStorage.setItem('clean-persons',JSON.stringify(clPersons));clRenderPersons();}
-function clRemovePerson(idx){clPersons.splice(idx,1);localStorage.setItem('clean-persons',JSON.stringify(clPersons));clRenderPersons();}
+function clAddPerson(){const input=document.getElementById('cl-person-input');const name=input.value.trim();if(!name)return;if(clPersons.includes(name)){showToast('이미 있어요!');return;}clPersons.push(name);input.value='';localStorage.setItem('clean-persons',JSON.stringify(clPersons));clRenderPersons();clSaveToServer();}
+function clRemovePerson(idx){clPersons.splice(idx,1);localStorage.setItem('clean-persons',JSON.stringify(clPersons));clRenderPersons();clSaveToServer();}
 function clRenderPersons(){
   const el=document.getElementById('cl-persons-grid');
   if(!clPersons.length){el.innerHTML='<span style="font-size:12px;color:#4a7060">인원을 추가해주세요</span>';clUpdateBadges();return;}
   el.innerHTML=clPersons.map((n,i)=>`<div class="tag person">${n}<button class="rm" onclick="clRemovePerson(${i})">×</button></div>`).join('');clUpdateBadges();
 }
-function clAddZone(){const input=document.getElementById('cl-zone-input');const name=input.value.trim();if(!name)return;if(clZones.includes(name)){showToast('이미 있어요!');return;}clZones.push(name);input.value='';localStorage.setItem('clean-zones',JSON.stringify(clZones));clRenderZones();}
-function clRemoveZone(idx){clZones.splice(idx,1);localStorage.setItem('clean-zones',JSON.stringify(clZones));clRenderZones();}
+function clAddZone(){const input=document.getElementById('cl-zone-input');const name=input.value.trim();if(!name)return;if(clZones.includes(name)){showToast('이미 있어요!');return;}clZones.push(name);input.value='';localStorage.setItem('clean-zones',JSON.stringify(clZones));clRenderZones();clSaveToServer();}
+function clRemoveZone(idx){clZones.splice(idx,1);localStorage.setItem('clean-zones',JSON.stringify(clZones));clRenderZones();clSaveToServer();}
 function clEditZone(idx){
   const el=document.getElementById('cl-zones-grid').children[idx];const name=clZones[idx];
   el.classList.add('editing');el.innerHTML=`<input type="text" value="${name}" maxlength="15" onblur="clFinishEdit(${idx},this.value)" onkeydown="if(event.key==='Enter')this.blur()"><button class="rm" onclick="clRemoveZone(${idx})">×</button>`;
   el.querySelector('input').focus();el.querySelector('input').select();
 }
-function clFinishEdit(idx,val){val=val.trim();if(val&&val!==clZones[idx]){if(clZones.includes(val)){showToast('이미 있는 구역이에요!');clRenderZones();return;}clZones[idx]=val;localStorage.setItem('clean-zones',JSON.stringify(clZones));}clRenderZones();}
+function clFinishEdit(idx,val){val=val.trim();if(val&&val!==clZones[idx]){if(clZones.includes(val)){showToast('이미 있는 구역이에요!');clRenderZones();return;}clZones[idx]=val;localStorage.setItem('clean-zones',JSON.stringify(clZones));clSaveToServer();}clRenderZones();}
 function clRenderZones(){
   const el=document.getElementById('cl-zones-grid');
   if(!clZones.length){el.innerHTML='<span style="font-size:12px;color:#4a7060">구역을 추가해주세요</span>';clUpdateBadges();return;}
