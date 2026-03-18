@@ -3,661 +3,966 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>오늘 뭐 먹지? 🍽</title>
+<title>우리 팀 도우미 🍽☕🧹</title>
 <style>
-  @font-face {
-    font-family: 'HsSantoki20';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2405@1.0/HSSanTokki20-Regular.woff2') format('woff2');
-    font-weight: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'BelovedMyoeunttobak';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Myoeunddobak-Rg.woff2') format('woff2');
-    font-weight: normal;
-    font-display: swap;
-  }
-  :root {
-    --bg: #c8d8f0;
-    --cream: #f5efe0;
-    --cream-dark: #ede4ce;
-    --border: #2a2018;
-    --shadow: #2a2018;
-    --teal: #5bbfb0;
-    --teal-dark: #3a9a8c;
-    --orange: #f0824a;
-    --orange-dark: #d0622a;
-    --pink: #f0a0b8;
-    --pink-dark: #d07090;
-    --yellow: #f5c842;
-    --yellow-dark: #d0a020;
-    --green: #7ec87e;
-    --text: #2a2018;
-    --text-muted: #7a6a58;
-  }
+@font-face {
+  font-family: 'HsSantoki20';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2405@1.0/HSSanTokki20-Regular.woff2') format('woff2');
+  font-weight: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'BelovedMyoeunttobak';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Myoeunddobak-Rg.woff2') format('woff2');
+  font-weight: normal; font-display: swap;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; }
+/* ══════════════════════════════
+   GLOBAL
+══════════════════════════════ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'BelovedMyoeunttobak', sans-serif; min-height: 100vh; color: #1a1a1a; }
+.page { display: none; }
+.page.active { display: block; }
 
-  body {
-    font-family: 'BelovedMyoeunttobak', monospace;
-    background-color: var(--bg);
-    background-image:
-      linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px);
-    background-size: 28px 28px;
-    min-height: 100vh;
-    color: var(--text);
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='20'%3E%3Cpolygon points='0,0 0,16 4,12 6,18 8,17 6,11 10,11' fill='%232a2018' stroke='%23f5efe0' stroke-width='1'/%3E%3C/svg%3E") 0 0, auto;
-  }
+/* ══════════════════════════════
+   TOP NAV TABS
+══════════════════════════════ */
+.top-nav {
+  position: sticky; top: 0; z-index: 99;
+  display: flex; border-bottom: 4px solid #1a1a1a;
+}
+.nav-btn {
+  flex: 1; padding: 13px 4px;
+  border: none; font-family: 'HsSantoki20', sans-serif;
+  font-size: 16px; cursor: pointer; transition: all 0.1s;
+  border-right: 3px solid #1a1a1a; letter-spacing: 0.5px;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.n0 { background: #c8d8f0; color: #2a2018; }
+.nav-btn.n0:hover, .nav-btn.n0.active { background: #5bbfb0; color: #fff; }
+.nav-btn.n1 { background: #f5efe0; color: #2a2018; }
+.nav-btn.n1:hover, .nav-btn.n1.active { background: #75070C; color: #FFEDAB; }
+.nav-btn.n2 { background: #b8f0e0; color: #0d2010; }
+.nav-btn.n2:hover, .nav-btn.n2.active { background: #1a9e78; color: #fff; }
 
-  .app { max-width: 520px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+/* ══════════════════════════════
+   SHARED COMPONENTS
+══════════════════════════════ */
+.sync-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; padding: 7px 14px; border-bottom: 2px solid; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; }
+.sync-dot.ok { background: #4caf82; }
+.sync-dot.err { background: #e05252; }
+.sync-dot.loading { background: #f0c040; animation: blink 0.6s step-start infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.setup-banner { padding: 1rem 1.2rem; font-size: 12px; line-height: 1.7; border-bottom: 3px solid; }
+.setup-banner strong { display: block; margin-bottom: 4px; font-size: 14px; }
+.setup-banner input { width: 100%; margin-top: 8px; padding: 7px 10px; font-family: 'BelovedMyoeunttobak', sans-serif; font-size: 12px; border: 2px solid; background: #fff; outline: none; }
+.wrap { padding: 1rem; max-width: 580px; margin: 0 auto; }
+.panel { margin-bottom: 1rem; border: 3px solid; box-shadow: 5px 5px 0; }
+.panel-head { padding: 8px 14px; font-family: 'HsSantoki20', sans-serif; font-size: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid; }
+.panel-body { padding: 1rem; }
+.panel-body.collapsed { display: none; }
+.panel.collapsed .panel-head { border-bottom: none; }
+.wc { display: flex; gap: 4px; }
+.wc-btn { width: 20px; height: 20px; border: 1.5px solid; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-family: 'BelovedMyoeunttobak', sans-serif; transition: all 0.1s; }
+.wc-btn:active { transform: translate(1px,1px); }
+.tag-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; min-height: 32px; }
+.tag { display: flex; align-items: center; gap: 6px; border: 2px solid; box-shadow: 2px 2px 0; padding: 5px 10px; font-size: 13px; }
+.tag .rm { background: none; border: none; cursor: pointer; font-size: 15px; line-height: 1; }
+.add-row { display: flex; gap: 8px; }
+.add-row input { flex: 1; padding: 8px 10px; font-family: 'BelovedMyoeunttobak', sans-serif; font-size: 13px; border: 2px solid; outline: none; }
+.btn { display: inline-flex; align-items: center; gap: 6px; font-family: 'BelovedMyoeunttobak', sans-serif; font-size: 13px; border: 2.5px solid; box-shadow: 3px 3px 0; padding: 8px 18px; cursor: pointer; transition: all 0.08s; }
+.btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0; }
+.btn.small { font-size: 11px; padding: 6px 12px; box-shadow: 2px 2px 0; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.section-label { font-size: 10px; margin-bottom: 8px; letter-spacing: 2px; text-transform: uppercase; }
+.empty-msg { text-align: center; padding: 2rem 0; font-size: 12px; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 10px 22px; font-size: 13px; font-family: 'HsSantoki20', sans-serif; letter-spacing: 1px; border: 2px solid; box-shadow: 4px 4px 0 rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.15s; pointer-events: none; z-index: 200; white-space: nowrap; }
+.toast.show { opacity: 1; }
 
-  /* WINDOW COMPONENT */
-  .window {
-    background: var(--cream);
-    border: 2.5px solid var(--border);
-    box-shadow: 4px 4px 0 var(--shadow);
-    border-radius: 0;
-    margin-bottom: 1.2rem;
-  }
 
-  .window-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 8px;
-    border-bottom: 2px solid var(--border);
-    font-family: 'HsSantoki20', monospace;
-    font-size: 18px;
-    letter-spacing: 0.5px;
-  }
-  .window-title.teal { background: var(--teal); }
-  .window-title.orange { background: var(--orange); }
-  .window-title.pink { background: var(--pink); }
-  .window-title.yellow { background: var(--yellow); }
-  .window-title.green { background: var(--green); }
+/* ══════════════════════════════
+   PAGE 0 — 점심 메뉴
+   theme: retro blue grid
+══════════════════════════════ */
+#page-lunch {
+  background-color: #c8d8f0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px);
+  background-size: 28px 28px;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='20'%3E%3Cpolygon points='0,0 0,16 4,12 6,18 8,17 6,11 10,11' fill='%232a2018' stroke='%23f5efe0' stroke-width='1'/%3E%3C/svg%3E") 0 0, auto;
+  min-height: 100vh;
+}
+.l-header { text-align: center; padding: 1.5rem 1rem 1rem; }
+.l-header h1 { font-family: 'HsSantoki20', sans-serif; font-size: 44px; color: #2a2018; text-shadow: 3px 3px 0 #3a9a8c; line-height: 1; letter-spacing: 2px; }
+.l-header .sub { font-size: 11px; color: #7a6a58; margin-top: 6px; letter-spacing: 1px; }
+.l-deco { display: flex; justify-content: center; gap: 12px; margin-bottom: 1rem; font-size: 18px; }
+.l-heart { color: #e05070; animation: hb 2s ease-in-out infinite; display: inline-block; }
+@keyframes hb { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
 
-  .window-controls { display: flex; gap: 4px; }
-  .wc-btn {
-    width: 18px; height: 18px;
-    background: var(--cream);
-    border: 1.5px solid var(--border);
-    font-size: 10px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    font-family: 'BelovedMyoeunttobak', monospace;
-    font-weight: 700;
-    line-height: 1;
-  }
-  .wc-btn:hover { background: var(--cream-dark); }
-  .wc-btn:active { transform: translate(1px,1px); box-shadow: none; }
+#page-lunch .sync-bar { background: #ede4ce; border-color: #2a2018; color: #7a6a58; }
+#page-lunch .setup-banner { background: #fffbe8; border-color: #d0a020; }
+#page-lunch .setup-banner input { border-color: #2a2018; }
 
-  .window-body { padding: 1rem; }
-  .window-body.collapsed { display: none; }
-  .window.collapsed .window-title { border-bottom: none; }
+#page-lunch .panel { background: #f5efe0; border-color: #2a2018; box-shadow: 5px 5px 0 #2a2018; }
+#page-lunch .panel-head { border-color: #2a2018; }
+#page-lunch .panel-head.teal { background: #5bbfb0; }
+#page-lunch .panel-head.orange { background: #f0824a; }
+#page-lunch .panel-head.pink { background: #f0a0b8; }
+#page-lunch .panel-head.yellow { background: #f5c842; }
+#page-lunch .wc-btn { background: #f5efe0; border-color: #2a2018; }
+#page-lunch .wc-btn:hover { background: #ede4ce; }
+#page-lunch .tag { background: #ede4ce; border-color: #2a2018; box-shadow: 2px 2px 0 #2a2018; }
+#page-lunch .tag .rm { color: #7a6a58; }
+#page-lunch .tag .rm:hover { color: #c03030; }
+#page-lunch .add-row input { background: #f5efe0; border-color: #2a2018; color: #2a2018; }
+#page-lunch .add-row input::placeholder { color: #7a6a58; }
+#page-lunch .add-row input:focus { background: #fffdf7; }
+#page-lunch .btn { background: #f5efe0; border-color: #2a2018; box-shadow: 3px 3px 0 #2a2018; color: #2a2018; }
+#page-lunch .btn:hover { background: #ede4ce; }
+#page-lunch .btn.primary { background: #5bbfb0; }
+#page-lunch .btn.primary:hover { background: #3a9a8c; }
+#page-lunch .btn.danger { background: #f5c8c8; }
+#page-lunch .section-label { color: #7a6a58; }
+#page-lunch .empty-msg { color: #7a6a58; }
 
-  /* HEADER */
-  .header {
-    text-align: center;
-    padding: 1.5rem 1rem 1rem;
-  }
-  .header h1 {
-    font-family: 'HsSantoki20', monospace;
-    font-size: 48px;
-    color: var(--text);
-    line-height: 1;
-    letter-spacing: 2px;
-    text-shadow: 3px 3px 0 var(--teal-dark);
-  }
-  .header .subtitle {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 6px;
-    letter-spacing: 1px;
-  }
+/* vote */
+.vote-item { display: flex; align-items: center; gap: 8px; background: #ede4ce; border: 1.5px solid #2a2018; padding: 8px 10px; transition: all 0.1s; margin-bottom: 5px; }
+.vote-item:hover { background: #f5efe0; box-shadow: 2px 2px 0 #2a2018; transform: translate(-1px,-1px); }
+.vote-item .mn { flex: 1; font-size: 13px; }
+.vote-item .vc { font-family: 'HsSantoki20', sans-serif; font-size: 18px; color: #7a6a58; min-width: 36px; text-align: center; }
+.vote-btn { width: 30px; height: 30px; border: 2px solid #2a2018; background: #f5efe0; font-family: 'HsSantoki20', sans-serif; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.08s; color: #7a6a58; box-shadow: 2px 2px 0 #2a2018; }
+.vote-btn:hover { background: #f5c842; }
+.vote-btn:active { transform: translate(1px,1px); box-shadow: none; }
+.vote-btn.voted { background: #5bbfb0; color: #2a2018; }
+.top-voted { background: #fffbe8 !important; border-color: #d0a020 !important; }
+.del-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: #7a6a58; }
+.del-btn:hover { color: #c03030; }
 
-  /* SYNC BAR */
-  .sync-bar {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 11px; color: var(--text-muted);
-    padding: 6px 10px;
-    background: var(--cream-dark);
-    border: 1.5px solid var(--border);
-    box-shadow: 2px 2px 0 var(--shadow);
-    margin-bottom: 1rem;
-  }
-  .sync-dot { width: 8px; height: 8px; background: #ccc; border: 1.5px solid var(--border); }
-  .sync-dot.ok { background: #7ec87e; }
-  .sync-dot.err { background: #e05252; }
-  .sync-dot.loading { background: var(--yellow); animation: blink 0.6s step-start infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+/* spin */
+.spin-display { background: #ede4ce; border: 2px solid #2a2018; min-height: 88px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; position: relative; overflow: hidden; }
+.spin-display::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(42,32,24,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(42,32,24,0.04) 1px,transparent 1px); background-size: 10px 10px; }
+.l-spin-text { font-family: 'HsSantoki20', sans-serif; font-size: 34px; color: #2a2018; position: relative; z-index:1; text-align: center; transition: color 0.08s; }
+.l-spin-text.spinning { color: #3a9a8c; }
 
-  /* SETUP BANNER */
-  .setup-banner {
-    background: #fffbe8;
-    border: 2px solid var(--yellow-dark);
-    box-shadow: 3px 3px 0 var(--shadow);
-    padding: 1rem;
-    margin-bottom: 1rem;
-    font-size: 12px;
-    line-height: 1.7;
-    color: var(--text);
-  }
-  .setup-banner strong { font-size: 14px; display: block; margin-bottom: 6px; }
-  .setup-banner input {
-    width: 100%;
-    margin-top: 8px;
-    padding: 6px 8px;
-    font-family: 'BelovedMyoeunttobak', monospace;
-    font-size: 11px;
-    border: 2px solid var(--border);
-    background: var(--cream);
-    outline: none;
-  }
+/* history */
+.l-hist-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: #ede4ce; border: 1.5px solid #2a2018; margin-bottom: 5px; }
+.l-hist-date { font-size: 11px; color: #7a6a58; min-width: 110px; }
+.l-hist-menu { font-family: 'HsSantoki20', sans-serif; font-size: 20px; color: #2a2018; }
+.l-divider { border: none; border-top: 1px solid #ede4ce; margin: 1.5rem 0; }
+#page-lunch .toast { background: #2a2018; color: #f5efe0; border-color: #f5efe0; }
 
-  /* TABS */
-  .tabs {
-    display: flex;
-    border: 2px solid var(--border);
-    box-shadow: 3px 3px 0 var(--shadow);
-    margin-bottom: 1.2rem;
-    background: var(--cream-dark);
-  }
-  .tab {
-    flex: 1; padding: 10px 4px;
-    border: none; background: transparent;
-    font-family: 'BelovedMyoeunttobak', monospace;
-    font-size: 12px; color: var(--text-muted);
-    cursor: pointer; transition: all 0.1s;
-    border-right: 2px solid var(--border);
-    letter-spacing: 0.5px;
-  }
-  .tab:last-child { border-right: none; }
-  .tab:hover { background: var(--cream); color: var(--text); }
-  .tab.active { background: var(--cream); color: var(--text); font-size: 13px; }
-  .tab.active.t0 { border-top: 3px solid var(--teal); }
-  .tab.active.t1 { border-top: 3px solid var(--orange); }
-  .tab.active.t2 { border-top: 3px solid var(--pink); }
 
-  .section { display: none; }
-  .section.active { display: block; }
+/* ══════════════════════════════
+   PAGE 1 — 커피 내기
+   theme: cherry/butter/casino
+══════════════════════════════ */
+#page-coffee {
+  background: #F0E6DA;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,237,171,0.25) 20px, rgba(255,237,171,0.25) 21px);
+  min-height: 100vh;
+}
+.c-header { background: #75070C; padding: 2rem 1rem 1.5rem; text-align: center; border-bottom: 6px double #d4b830; position: relative; overflow: hidden; }
+.c-header::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(255,255,255,0.03) 8px, rgba(255,255,255,0.03) 9px); }
+.c-header-stars { letter-spacing: 10px; color: #FFEDAB; font-size: 13px; margin-bottom: 10px; position: relative; }
+.c-header h1 { font-family: 'HsSantoki20', sans-serif; font-size: 50px; color: #FFEDAB; text-shadow: 3px 3px 0 #1a0f08; line-height: 1; position: relative; }
+.c-header .sub { color: rgba(255,237,171,0.7); font-size: 11px; letter-spacing: 3px; margin-top: 6px; position: relative; }
+.c-header-badge { display: inline-block; border: 2px solid rgba(255,237,171,0.5); padding: 3px 16px; font-size: 10px; color: #FFEDAB; letter-spacing: 2px; margin-top: 10px; position: relative; }
 
-  /* SPIN */
-  .spin-display {
-    background: var(--cream-dark);
-    border: 2px solid var(--border);
-    min-height: 90px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 1rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .spin-display::before {
-    content: '';
-    position: absolute; inset: 0;
-    background-image: linear-gradient(rgba(42,32,24,0.04) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(42,32,24,0.04) 1px, transparent 1px);
-    background-size: 10px 10px;
-  }
-  .spin-result {
-    font-family: 'HsSantoki20', monospace;
-    font-size: 36px;
-    color: var(--text);
-    position: relative; z-index: 1;
-    transition: color 0.08s;
-    text-align: center; padding: 0 1rem;
-  }
-  .spin-result.spinning { color: var(--teal-dark); }
+#page-coffee .sync-bar { background: #ddd0c0; border-color: #1a0f08; color: #7a6050; }
+#page-coffee .setup-banner { background: #FFEDAB; border-color: #1a0f08; }
+#page-coffee .setup-banner input { border-color: #1a0f08; }
 
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-family: 'BelovedMyoeunttobak', monospace;
-    font-size: 13px; color: var(--text);
-    background: var(--cream); border: 2px solid var(--border);
-    box-shadow: 3px 3px 0 var(--shadow);
-    padding: 8px 18px; cursor: pointer;
-    transition: all 0.08s; letter-spacing: 0.5px;
-  }
-  .btn:hover { background: var(--cream-dark); }
-  .btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--shadow); }
-  .btn.primary { background: var(--teal); border-color: var(--border); }
-  .btn.primary:hover { background: var(--teal-dark); }
-  .btn.small { font-size: 11px; padding: 5px 12px; box-shadow: 2px 2px 0 var(--shadow); }
-  .btn.danger { background: #f5c8c8; }
-  .btn.danger:hover { background: #f0a0a0; }
+#page-coffee .panel { border-color: #1a0f08; box-shadow: 5px 5px 0 #1a0f08; background: #faf5ee; }
+#page-coffee .panel-head { border-color: #1a0f08; }
+#page-coffee .panel-head.olive { background: #4F6815; color: #FFEDAB; }
+#page-coffee .panel-head.cherry { background: #75070C; color: #FFEDAB; }
+#page-coffee .wc-btn { background: #FFEDAB; border-color: #1a0f08; }
+#page-coffee .wc-btn:hover { background: #d4b830; }
+#page-coffee .tag { background: #FFEDAB; border-color: #1a0f08; box-shadow: 2px 2px 0 #1a0f08; }
+#page-coffee .tag .rm { color: #75070C; }
+#page-coffee .add-row input { background: #F0E6DA; border-color: #1a0f08; }
+#page-coffee .add-row input::placeholder { color: #7a6050; }
+#page-coffee .btn { background: #FFEDAB; border-color: #1a0f08; box-shadow: 3px 3px 0 #1a0f08; color: #1a0f08; }
+#page-coffee .btn:hover { background: #f5e090; }
+#page-coffee .btn.cherry { background: #75070C; color: #FFEDAB; }
+#page-coffee .btn.cherry:hover { background: #a01015; }
+#page-coffee .btn.olive { background: #4F6815; color: #FFEDAB; }
+#page-coffee .btn.dark { background: #1a0f08; color: #FFEDAB; }
+#page-coffee .btn.danger { background: #f5c8c8; color: #1a0f08; }
+#page-coffee .section-label { color: #7a6050; }
+#page-coffee .empty-msg { color: #7a6050; }
+#page-coffee .toast { background: #75070C; color: #FFEDAB; border-color: #d4b830; }
 
-  .spin-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  #save-btn { display: none; }
+/* casino panels */
+.casino-panel { background: #1c1008; border: 4px solid #d4b830; box-shadow: 0 0 0 2px #1a0f08, 6px 6px 0 #1a0f08; overflow: hidden; margin-bottom: 1rem; }
+.casino-head { background: #2a1510; padding: 10px 16px; font-family: 'HsSantoki20', sans-serif; font-size: 17px; color: #FFEDAB; border-bottom: 3px solid #d4b830; display: flex; justify-content: space-between; align-items: center; letter-spacing: 2px; }
+.casino-head .wc-btn { background: #75070C; color: #FFEDAB; border-color: #d4b830; }
+.casino-head .wc-btn:hover { background: #a01015; }
+.casino-stars { color: #d4b830; font-size: 10px; letter-spacing: 4px; display: block; }
+.casino-body { padding: 1.2rem; }
+.casino-body.collapsed { display: none; }
+.casino-inner { border: 2px solid rgba(212,184,48,0.3); padding: 1rem; }
+.c-label { font-size: 10px; color: rgba(255,237,171,0.5); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
+.roulette-pointer { text-align: center; color: #FFEDAB; font-size: 22px; margin-bottom: 4px; }
+#roulette-canvas { display: block; margin: 0 auto 1rem; border: 5px solid #d4b830; box-shadow: 0 0 0 2px #1a0f08, 0 0 24px rgba(117,7,12,0.5); border-radius: 50%; }
+#roulette-result { font-family: 'HsSantoki20', sans-serif; font-size: 24px; text-align: center; color: #FFEDAB; text-shadow: 0 0 12px rgba(255,237,171,0.4); margin-top: 4px; }
 
-  /* MENU ITEMS */
-  .menu-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 1rem; }
-  .menu-item {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--cream-dark);
-    border: 1.5px solid var(--border);
-    padding: 8px 10px;
-    transition: all 0.1s;
-  }
-  .menu-item:hover { background: var(--cream); box-shadow: 2px 2px 0 var(--shadow); transform: translate(-1px,-1px); }
-  .menu-name { flex: 1; font-size: 13px; }
-  .vote-count {
-    font-family: 'BelovedMyoeunttobak', monospace; font-size: 20px;
-    color: var(--text-muted); min-width: 36px; text-align: center;
-  }
-  .vote-btn {
-    width: 30px; height: 30px;
-    border: 2px solid var(--border); background: var(--cream);
-    font-family: 'BelovedMyoeunttobak', monospace; font-size: 18px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: all 0.08s; color: var(--text-muted);
-    box-shadow: 2px 2px 0 var(--shadow);
-  }
-  .vote-btn:hover { background: var(--yellow); }
-  .vote-btn:active { transform: translate(1px,1px); box-shadow: none; }
-  .vote-btn.voted { background: var(--teal); color: var(--text); border-color: var(--border); }
-  .del-btn {
-    background: none; border: none; cursor: pointer;
-    font-size: 18px; color: var(--text-muted); padding: 2px 4px;
-    transition: color 0.1s; font-family: 'BelovedMyoeunttobak', monospace;
-  }
-  .del-btn:hover { color: #c03030; }
-  .top-voted { background: #fffbe8 !important; border-color: var(--yellow-dark) !important; }
-  .top-label { font-family: 'BelovedMyoeunttobak', monospace; font-size: 16px; color: var(--yellow-dark); }
+/* kitch ladder */
+.kitch-panel { border: 4px solid #1a0f08; box-shadow: 6px 6px 0 #1a0f08; overflow: hidden; margin-bottom: 1rem; }
+.kitch-head { padding: 10px 16px; font-family: 'HsSantoki20', sans-serif; font-size: 17px; border-bottom: 4px solid #1a0f08; display: flex; justify-content: space-between; align-items: center; background: repeating-linear-gradient(90deg,#f5c842 0,#f5c842 30px,#f0824a 30px,#f0824a 60px,#5bbfb0 60px,#5bbfb0 90px,#f0a0b8 90px,#f0a0b8 120px,#7ec87e 120px,#7ec87e 150px); color: #1a0f08; }
+.kitch-head .wc-btn { background: #fff; border-color: #1a0f08; }
+.kitch-body { background: #fff8f0; padding: 1rem; }
+.kitch-body.collapsed { display: none; }
+#ladder-canvas { display: block; margin: 0 auto 0.8rem; border: 3px solid #1a0f08; box-shadow: 4px 4px 0 #1a0f08; }
+.ladder-result-wrap { text-align: center; min-height: 40px; margin-bottom: 0.5rem; }
+#ladder-result { font-family: 'HsSantoki20', sans-serif; font-size: 24px; color: #75070C; background: #FFEDAB; border: 3px solid #1a0f08; padding: 5px 16px; display: none; box-shadow: 3px 3px 0 #1a0f08; }
 
-  /* ADD ROW */
-  .add-row { display: flex; gap: 8px; }
-  .add-row input {
-    flex: 1; padding: 8px 10px;
-    font-family: 'BelovedMyoeunttobak', monospace; font-size: 12px;
-    border: 2px solid var(--border); background: var(--cream);
-    outline: none; color: var(--text);
-  }
-  .add-row input::placeholder { color: var(--text-muted); }
-  .add-row input:focus { background: #fffdf7; }
+/* draw tickets */
+.draw-cards { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 1rem; }
+.ticket { width: 78px; height: 114px; background: #F0E6DA; border: 2.5px solid #ddd0c0; box-shadow: 3px 3px 0 rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: all 0.1s; overflow: hidden; }
+.ticket::before,.ticket::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; border-radius: 50%; background: #1c1008; }
+.ticket::before { left: -7px; }
+.ticket::after { right: -7px; }
+.ticket:hover { transform: translateY(-5px); box-shadow: 3px 8px 0 rgba(0,0,0,0.5); }
+.t-inner { border: 2px dashed rgba(117,7,12,0.35); width: calc(100% - 14px); height: calc(100% - 12px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.t-num { font-size: 8px; color: #75070C; letter-spacing: 1px; }
+.t-icon { font-size: 26px; }
+.t-label { font-size: 9px; color: #7a6050; letter-spacing: 1px; }
+.ticket.revealed { cursor: default; }
+.ticket.revealed:hover { transform: none; }
+.ticket.loser { background: #ddd0c0; }
+.ticket.loser .t-icon { font-size: 16px; color: #7a6050; }
+.ticket.winner { background: #FFEDAB; box-shadow: 3px 3px 0 rgba(0,0,0,0.5), 0 0 16px rgba(255,220,50,0.5); border-color: #d4b830; }
+.ticket.winner .t-icon { font-size: 22px; }
+.ticket.winner .t-name, .ticket.loser .t-name { font-size: 10px; font-family: 'BelovedMyoeunttobak', sans-serif; color: #1a0f08; }
+#draw-result { font-family: 'HsSantoki20', sans-serif; font-size: 22px; text-align: center; color: #FFEDAB; text-shadow: 0 0 10px rgba(255,237,171,0.4); margin-top: 6px; }
 
-  /* HISTORY */
-  .history-list { display: flex; flex-direction: column; gap: 5px; }
-  .history-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 10px; background: var(--cream-dark);
-    border: 1.5px solid var(--border);
-  }
-  .history-date { font-size: 11px; color: var(--text-muted); min-width: 110px; }
-  .history-menu { font-family: 'BelovedMyoeunttobak', monospace; font-size: 22px; color: var(--text); }
+/* coffee random */
+.c-spin-display { background: #F0E6DA; border: 3px solid #1a0f08; min-height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; position: relative; overflow: hidden; }
+.c-spin-display::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg,transparent,transparent 18px,rgba(79,104,21,0.06) 18px,rgba(79,104,21,0.06) 19px); }
+.c-spin-text { font-family: 'HsSantoki20', sans-serif; font-size: 36px; color: #75070C; text-shadow: 2px 2px 0 #FFEDAB; position: relative; z-index: 1; text-align: center; transition: color 0.08s; }
+.c-spin-text.spinning { color: #4F6815; text-shadow: none; }
 
-  .empty-msg { text-align: center; padding: 2rem 0; font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
-  .section-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 2px; text-transform: uppercase; }
+/* coffee history */
+.c-hist-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #F0E6DA; border: 1.5px solid #ddd0c0; margin-bottom: 5px; }
+.c-hist-date { font-size: 11px; color: #7a6050; min-width: 100px; }
+.c-hist-who { font-family: 'HsSantoki20', sans-serif; font-size: 20px; color: #75070C; }
+.c-hist-mode { font-size: 10px; color: #7a6050; background: #FFEDAB; border: 1px solid #ddd0c0; padding: 2px 7px; }
+.c-retro-div { height: 6px; background: repeating-linear-gradient(90deg,#75070C 0,#75070C 10px,#FFEDAB 10px,#FFEDAB 20px); border-top: 2px solid #1a0f08; border-bottom: 2px solid #1a0f08; margin: 0 0 1rem; }
 
-  /* TOAST */
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: var(--text); color: var(--cream);
-    padding: 8px 18px; font-size: 12px;
-    border: 2px solid var(--cream); box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
-    opacity: 0; transition: opacity 0.15s; pointer-events: none; z-index: 100;
-    white-space: nowrap; letter-spacing: 0.5px;
-  }
-  .toast.show { opacity: 1; }
 
-  /* Pixel decorations */
-  .pixel-deco {
-    display: flex; justify-content: center; gap: 12px;
-    margin-bottom: 1rem; font-size: 20px;
-  }
-  .pixel-heart { color: #e05070; font-size: 18px; animation: heartbeat 2s ease-in-out infinite; }
-  @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+/* ══════════════════════════════
+   PAGE 2 — 청소 당번
+   theme: mint + checkered
+══════════════════════════════ */
+#page-clean {
+  background-color: #7de8c8;
+  background-image:
+    linear-gradient(rgba(14,122,92,0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14,122,92,0.5) 1px, transparent 1px);
+  background-size: 36px 36px;
+  min-height: 100vh;
+}
+.cl-header { background: #f8fffe; border-bottom: 5px solid #0d2010; }
+.cl-header-top { background: #3ac8a0; padding: 1.5rem 1.2rem 1rem; text-align: center; border-bottom: 4px solid #0d2010; position: relative; }
+.cl-header-top::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 20px; background: #f8fffe; clip-path: ellipse(52% 100% at 50% 100%); }
+.cl-header h1 { font-family: 'HsSantoki20', sans-serif; font-size: 44px; color: #f8fffe; text-shadow: 3px 3px 0 #0e7a5c; line-height: 1; position: relative; z-index: 1; }
+.cl-header .sub { font-size: 11px; color: rgba(255,255,255,0.8); letter-spacing: 3px; margin-top: 6px; text-transform: uppercase; position: relative; z-index: 1; }
+.cl-badge-row { display: flex; justify-content: center; gap: 8px; padding: 10px 1rem 12px; }
+.cl-badge { display: inline-flex; align-items: center; gap: 8px; background: #f0fdf8; border: 2.5px solid #0d2010; box-shadow: 3px 3px 0 #0d2010; padding: 6px 14px; font-size: 13px; }
+.cl-badge span { font-family: 'HsSantoki20', sans-serif; font-size: 22px; color: #1a9e78; }
+.cl-badge label { font-size: 11px; color: #4a7060; }
 
-  /* Loading bar retro */
-  .loading-bar-wrap {
-    border: 2px solid var(--border); background: var(--cream-dark);
-    height: 14px; overflow: hidden; margin-top: 6px;
-  }
-  .loading-bar-fill {
-    height: 100%;
-    background: repeating-linear-gradient(90deg, var(--teal) 0px, var(--teal) 12px, var(--teal-dark) 12px, var(--teal-dark) 14px);
-    width: 0%;
-    transition: width 0.3s;
-  }
+#page-clean .sync-bar { background: #b8f0e0; border-color: #0d2010; color: #4a7060; }
+#page-clean .setup-banner { background: #fffbe8; border-color: #0d2010; }
+#page-clean .setup-banner input { border-color: #0d2010; }
+
+#page-clean .panel { background: #f8fffe; border-color: #0d2010; box-shadow: 5px 5px 0 #0d2010; }
+#page-clean .panel-head { border-color: #0d2010; }
+#page-clean .panel-head.mint { background: #7de8c8; }
+#page-clean .panel-head.sky { background: #b8e8f0; }
+#page-clean .panel-head.green { background: #1a9e78; color: #f8fffe; }
+#page-clean .wc-btn { background: #f8fffe; border-color: #0d2010; }
+#page-clean .wc-btn:hover { background: #7de8c8; }
+#page-clean .tag { background: #f0fdf8; border-color: #0d2010; box-shadow: 2px 2px 0 #0d2010; }
+#page-clean .tag.zone { background: #7de8c8; }
+#page-clean .tag.person { background: #b8e8f0; }
+#page-clean .tag .rm { color: #1a9e78; }
+#page-clean .tag .rm:hover { color: #c03030; }
+#page-clean .add-row input { background: #f0fdf8; border-color: #0d2010; color: #0d2010; }
+#page-clean .add-row input::placeholder { color: #4a7060; }
+#page-clean .btn { background: #f8fffe; border-color: #0d2010; box-shadow: 3px 3px 0 #0d2010; color: #0d2010; }
+#page-clean .btn:hover { background: #7de8c8; }
+#page-clean .btn.primary { background: #3ac8a0; color: #fff; }
+#page-clean .btn.primary:hover { background: #1a9e78; }
+#page-clean .btn.save-btn { background: #0e7a5c; color: #fff; }
+#page-clean .btn.danger { background: #fce8e8; }
+#page-clean .section-label { color: #4a7060; }
+#page-clean .empty-msg { color: #4a7060; }
+#page-clean .toast { background: #0e7a5c; color: #fff; border-color: #7de8c8; }
+
+/* match cards */
+.match-card { display: flex; align-items: center; border: 2.5px solid #0d2010; box-shadow: 3px 3px 0 #0d2010; overflow: hidden; margin-bottom: 8px; animation: pop 0.3s ease; }
+@keyframes pop { 0%{transform:scale(0.95)} 60%{transform:scale(1.03)} 100%{transform:scale(1)} }
+.match-zone { background: #7de8c8; padding: 10px 12px; font-size: 13px; font-weight: bold; min-width: 100px; border-right: 2.5px solid #0d2010; }
+.match-arrow { padding: 10px 7px; font-size: 14px; color: #4a7060; background: #f0fdf8; border-right: 2.5px solid #0d2010; }
+.match-persons { flex: 1; padding: 10px 10px; background: #f8fffe; display: flex; flex-wrap: wrap; gap: 5px; }
+.match-person-tag { background: #b8e8f0; border: 1.5px solid #0d2010; padding: 3px 8px; font-size: 12px; }
+
+/* clean history */
+.cl-hist-entry { border: 2px solid #0d2010; background: #f0fdf8; overflow: hidden; margin-bottom: 8px; }
+.cl-hist-date { background: #1a9e78; color: #fff; padding: 5px 12px; font-size: 11px; letter-spacing: 1px; border-bottom: 2px solid #0d2010; }
+.cl-hist-matches { padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; }
+.cl-hist-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.cl-hist-zone { background: #7de8c8; border: 1.5px solid #0d2010; padding: 2px 8px; font-size: 12px; }
+.cl-hist-persons { display: flex; gap: 4px; flex-wrap: wrap; }
+.cl-hist-person { background: #b8e8f0; border: 1px solid #0d2010; padding: 1px 7px; font-size: 11px; }
+.cl-info-note { font-size: 11px; color: #4a7060; background: #b8f0e0; border: 1.5px solid #1a9e78; padding: 6px 10px; margin-bottom: 10px; }
+.cl-divider { height: 5px; background: repeating-linear-gradient(90deg,#1a9e78 0,#1a9e78 10px,#f8fffe 10px,#f8fffe 20px); border-top: 2px solid #0d2010; border-bottom: 2px solid #0d2010; margin: 0 0 1rem; }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <!-- HEADER -->
-  <div class="header">
-    <div class="pixel-deco">
-      <span>✦</span>
-      <span class="pixel-heart">♥</span>
-      <span>✦</span>
-    </div>
+<!-- TOP NAV -->
+<div class="top-nav">
+  <button class="nav-btn n0 active" onclick="switchPage(0)">🍽 점심메뉴</button>
+  <button class="nav-btn n1" onclick="switchPage(1)">☕ 커피내기</button>
+  <button class="nav-btn n2" onclick="switchPage(2)">🧹 청소당번</button>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE 0: 점심 메뉴
+═══════════════════════════════════ -->
+<div id="page-lunch" class="page active">
+  <div class="l-header">
+    <div class="l-deco"><span>✦</span><span class="l-heart">♥</span><span>✦</span></div>
     <h1>오늘 뭐 먹지?</h1>
-    <p class="subtitle">팀 점심 메뉴 결정기 // LUNCH PICKER v1.0</p>
+    <p class="sub">팀 점심 메뉴 결정기 // LUNCH PICKER v1.0</p>
   </div>
-
-  <!-- SYNC STATUS -->
-  <div class="sync-bar">
-    <div class="sync-dot" id="sync-dot"></div>
-    <span id="sync-label">연결 중...</span>
+  <div class="sync-bar" id="l-sync-bar"><div class="sync-dot" id="l-sync-dot"></div><span id="l-sync-label">연결 중...</span></div>
+  <div class="setup-banner" id="l-setup" style="display:none">
+    <strong>⚙ SETUP</strong>Apps Script URL을 입력하세요.
+    <input type="text" id="l-url-input" placeholder="https://script.google.com/macros/s/.../exec">
+    <div style="margin-top:8px"><button class="btn small" onclick="lSaveUrl()">▶ 연결</button></div>
   </div>
-
-  <!-- SETUP BANNER -->
-  <div class="setup-banner" id="setup-banner" style="display:none">
-    <strong>⚙ SETUP REQUIRED</strong>
-    Apps Script 배포 후 받은 Web App URL을 붙여넣으세요.
-    <input type="text" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec">
-    <div style="margin-top:8px">
-      <button class="btn small" onclick="saveScriptUrl()">▶ 저장하고 연결</button>
+  <div class="wrap">
+    <!-- 점심 서브탭 -->
+    <div style="display:flex;border:2px solid #2a2018;box-shadow:3px 3px 0 #2a2018;margin-bottom:1rem;background:#2a2018;gap:2px;">
+      <button id="l-tab0" onclick="showLTab(0)" style="flex:1;padding:9px 2px;border:none;font-family:'BelovedMyoeunttobak',sans-serif;font-size:11px;cursor:pointer;transition:all 0.1s;background:#f5efe0;color:#2a2018;border-top:3px solid #5bbfb0;">🎲 랜덤뽑기</button>
+      <button id="l-tab1" onclick="showLTab(1)" style="flex:1;padding:9px 2px;border:none;font-family:'BelovedMyoeunttobak',sans-serif;font-size:11px;cursor:pointer;transition:all 0.1s;background:#ede4ce;color:#7a6a58;">👍 투표</button>
+      <button id="l-tab2" onclick="showLTab(2)" style="flex:1;padding:9px 2px;border:none;font-family:'BelovedMyoeunttobak',sans-serif;font-size:11px;cursor:pointer;transition:all 0.1s;background:#ede4ce;color:#7a6a58;">📋 기록</button>
+      <button id="l-tab3" onclick="showLTab(3)" style="flex:1;padding:9px 2px;border:none;font-family:'BelovedMyoeunttobak',sans-serif;font-size:11px;cursor:pointer;transition:all 0.1s;background:#ede4ce;color:#7a6a58;">🍜 메뉴관리</button>
     </div>
-  </div>
 
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab t0 active" onclick="showTab(0)">🎲 랜덤뽑기</button>
-    <button class="tab t1" onclick="showTab(1)">👍 투표</button>
-    <button class="tab t2" onclick="showTab(2)">📋 기록</button>
-  </div>
-
-  <!-- TAB: RANDOM -->
-  <div id="tab-0" class="section active">
-    <div class="window">
-      <div class="window-title teal">
-        <span>RANDOM_PICKER.exe</span>
-        <div class="window-controls">
-          <div class="wc-btn" onclick="toggleWindow(this)">_</div>
-          <div class="wc-btn">□</div>
-          <div class="wc-btn">×</div>
-        </div>
-      </div>
-      <div class="window-body">
-        <div class="spin-display">
-          <div class="spin-result" id="spin-result">버튼을 눌러보세요!</div>
-        </div>
-        <div class="spin-actions">
-          <button class="btn primary" onclick="spinMenu()">▶ 랜덤 뽑기</button>
-          <button class="btn small" id="save-btn" onclick="saveToHistory()">💾 오늘 메뉴로 저장</button>
+    <!-- TAB 0: 랜덤 뽑기 -->
+    <div id="l-section-0">
+      <div class="panel">
+        <div class="panel-head teal"><span>RANDOM_PICKER.exe</span></div>
+        <div class="panel-body">
+          <div class="spin-display"><div class="l-spin-text" id="l-spin-result">버튼을 눌러보세요!</div></div>
+          <div class="btn-row">
+            <button class="btn primary" onclick="lSpin()">▶ 랜덤 뽑기</button>
+            <button class="btn small" id="l-save-spin-btn" style="display:none" onclick="lSaveHistory(lastLunchSpin)">💾 오늘 메뉴로 저장</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- TAB: VOTE -->
-  <div id="tab-1" class="section">
-    <div class="window">
-      <div class="window-title orange">
-        <span>VOTE.exe</span>
-        <div class="window-controls">
-          <div class="wc-btn" onclick="toggleWindow(this)">_</div>
-          <div class="wc-btn">□</div>
-          <div class="wc-btn">×</div>
+    <!-- TAB 1: 투표 -->
+    <div id="l-section-1" style="display:none">
+      <div class="panel">
+        <div class="panel-head orange"><span>VOTE.exe</span></div>
+        <div class="panel-body">
+          <p class="section-label">클릭해서 투표 / 다시 클릭하면 취소</p>
+          <div id="l-vote-list"></div>
         </div>
-      </div>
-      <div class="window-body">
-        <p class="section-label">클릭해서 투표 / 다시 클릭하면 취소</p>
-        <div class="menu-list" id="vote-list"></div>
       </div>
     </div>
-  </div>
 
-  <!-- TAB: HISTORY -->
-  <div id="tab-2" class="section">
-    <div class="window">
-      <div class="window-title pink">
-        <span>HISTORY.log</span>
-        <div class="window-controls">
-          <div class="wc-btn" onclick="toggleWindow(this)">_</div>
-          <div class="wc-btn">□</div>
-          <div class="wc-btn">×</div>
+    <!-- TAB 2: 기록 -->
+    <div id="l-section-2" style="display:none">
+      <div class="panel">
+        <div class="panel-head pink"><span>HISTORY.log</span></div>
+        <div class="panel-body">
+          <div id="l-hist-list"></div>
+
         </div>
       </div>
-      <div class="window-body">
-        <div class="history-list" id="history-list"></div>
-        <div style="margin-top:10px">
-          <button class="btn small danger" onclick="clearHistory()">🗑 기록 전체 삭제</button>
+    </div>
+
+    <!-- TAB 3: 메뉴 관리 -->
+    <div id="l-section-3" style="display:none">
+      <div class="panel">
+        <div class="panel-head yellow"><span>MENU_LIST.dat</span></div>
+        <div class="panel-body">
+          <p class="section-label">팀 공유 메뉴 목록</p>
+          <div id="l-menu-list"></div>
+          <div class="add-row">
+            <input type="text" id="l-menu-input" placeholder="새 메뉴 입력 후 엔터..." maxlength="30" onkeydown="if(event.key==='Enter')lAddMenu()">
+            <button class="btn small" onclick="lAddMenu()">+ 추가</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- MENU MANAGE -->
-  <div class="window">
-    <div class="window-title yellow">
-      <span>MENU_LIST.dat</span>
-      <div class="window-controls">
-        <div class="wc-btn" onclick="toggleWindow(this)">_</div>
-        <div class="wc-btn">□</div>
-        <div class="wc-btn">×</div>
+<!-- ═══════════════════════════════════
+     PAGE 1: 커피 내기
+═══════════════════════════════════ -->
+<div id="page-coffee" class="page">
+  <div class="c-header">
+    <div class="c-header-stars">★ ★ ★ ★ ★</div>
+    <h1>☕ 커피내기!</h1>
+    <p class="sub">누가 쏠까요 · COFFEE PICKER</p>
+    <div class="c-header-badge">EST. 2025 · TEAM EDITION</div>
+  </div>
+  <div class="sync-bar" id="c-sync-bar"><div class="sync-dot" id="c-sync-dot"></div><span id="c-sync-label">연결 중...</span></div>
+  <div class="setup-banner" id="c-setup" style="display:none">
+    <strong>⚙ SETUP</strong>Apps Script URL을 입력하세요.
+    <input type="text" id="c-url-input" placeholder="https://script.google.com/macros/s/.../exec">
+    <div style="margin-top:8px"><button class="btn small" onclick="cSaveUrl()">▶ 연결</button></div>
+  </div>
+  <div class="wrap">
+    <!-- players -->
+    <div class="panel">
+      <div class="panel-head olive"><span>☕ 참가자 명단</span><div class="wc"><div class="wc-btn" onclick="tog(this)">_</div><div class="wc-btn">□</div><div class="wc-btn">×</div></div></div>
+      <div class="panel-body">
+        <p class="section-label">모든 게임 공통</p>
+        <div class="tag-grid" id="c-persons-grid"></div>
+        <div class="add-row">
+          <input type="text" id="c-person-input" placeholder="이름 입력 후 엔터..." maxlength="10" onkeydown="if(event.key==='Enter')cAddPerson()">
+          <button class="btn small cherry" onclick="cAddPerson()">+ 추가</button>
+        </div>
       </div>
     </div>
-    <div class="window-body">
-      <p class="section-label">팀 공유 메뉴 목록</p>
-      <div class="menu-list" id="menu-list"></div>
-      <div class="add-row">
-        <input type="text" id="new-menu-input" placeholder="새 메뉴 입력 후 엔터..." maxlength="30"
-               onkeydown="if(event.key==='Enter')addMenu()">
-        <button class="btn small" onclick="addMenu()">+ 추가</button>
+    <!-- game tabs -->
+    <div style="display:flex;border:2px solid #1a0f08;box-shadow:3px 3px 0 #1a0f08;margin-bottom:1rem;background:#1a0f08;gap:2px;">
+      <button class="btn small" id="cg0" onclick="showCGame(0)" style="flex:1;border:none;box-shadow:none;background:#F0E6DA;border-top:3px solid #4F6815;">🎲 랜덤</button>
+      <button class="btn small" id="cg1" onclick="showCGame(1)" style="flex:1;border:none;box-shadow:none;background:#ddd0c0;color:#7a6050;">🎡 룰렛</button>
+      <button class="btn small" id="cg2" onclick="showCGame(2)" style="flex:1;border:none;box-shadow:none;background:#ddd0c0;color:#7a6050;">🪜 사다리</button>
+      <button class="btn small" id="cg3" onclick="showCGame(3)" style="flex:1;border:none;box-shadow:none;background:#ddd0c0;color:#7a6050;">🃏 제비</button>
+    </div>
+    <!-- random -->
+    <div id="cg-0" class="cgame">
+      <div class="panel">
+        <div class="panel-head olive"><span>RANDOM PICK</span><div class="wc"><div class="wc-btn" onclick="tog(this)">_</div><div class="wc-btn">□</div><div class="wc-btn">×</div></div></div>
+        <div class="panel-body">
+          <div class="c-spin-display"><div class="c-spin-text" id="c-rand-result">참가자를 추가하세요!</div></div>
+          <div class="btn-row">
+            <button class="btn cherry" onclick="cSpinRandom()">▶ 뽑기</button>
+            <button class="btn small olive" id="c-rand-save" style="display:none" onclick="cSaveResult('랜덤',lastCoffeeRand)">💾 저장</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- roulette -->
+    <div id="cg-1" class="cgame" style="display:none">
+      <div class="casino-panel">
+        <div class="casino-head"><div><span class="casino-stars">★ ★ ★</span><span>ROULETTE</span></div><div class="wc"><div class="wc-btn" onclick="togCasino(this)">_</div><div class="wc-btn">□</div><div class="wc-btn">×</div></div></div>
+        <div class="casino-body"><div class="casino-inner">
+          <p class="c-label">spin the wheel · 행운을 빕니다</p>
+          <div class="roulette-pointer">▼</div>
+          <canvas id="roulette-canvas" width="260" height="260"></canvas>
+          <div id="roulette-result"></div>
+          <div class="btn-row" style="justify-content:center;margin-top:12px">
+            <button class="btn cherry" onclick="cSpinRoulette()">▶ 돌리기</button>
+            <button class="btn small dark" id="c-rul-save" style="display:none" onclick="cSaveResult('룰렛',lastCoffeeRoul)">💾 저장</button>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <!-- ladder -->
+    <div id="cg-2" class="cgame" style="display:none">
+      <div class="kitch-panel">
+        <div class="kitch-head"><span>🪜 사다리 타기!</span><div class="wc"><div class="wc-btn" onclick="togKitch(this)">_</div><div class="wc-btn">□</div><div class="wc-btn">×</div></div></div>
+        <div class="kitch-body">
+          <canvas id="ladder-canvas" width="480" height="300"></canvas>
+          <div class="ladder-result-wrap"><div id="ladder-result"></div></div>
+          <div class="btn-row">
+            <button class="btn cherry" onclick="cBuildLadder()">▶ 사다리 생성</button>
+            <button class="btn" onclick="cRevealLadder()">👁 결과 보기</button>
+            <button class="btn small olive" id="c-lad-save" style="display:none" onclick="cSaveResult('사다리',lastCoffeeLad)">💾 저장</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- draw -->
+    <div id="cg-3" class="cgame" style="display:none">
+      <div class="casino-panel">
+        <div class="casino-head"><div><span class="casino-stars">★ ★ ★</span><span>DRAW A TICKET</span></div><div class="wc"><div class="wc-btn" onclick="togCasino(this)">_</div><div class="wc-btn">□</div><div class="wc-btn">×</div></div></div>
+        <div class="casino-body"><div class="casino-inner">
+          <p class="c-label">카드를 한 장 골라보세요</p>
+          <div class="draw-cards" id="draw-cards"></div>
+          <div id="draw-result"></div>
+          <div class="btn-row" style="justify-content:center;margin-top:12px">
+            <button class="btn cherry" onclick="cSetupDraw()">🔀 카드 섞기</button>
+            <button class="btn small dark" id="c-drw-save" style="display:none" onclick="cSaveResult('제비뽑기',lastCoffeeDrw)">💾 저장</button>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="c-retro-div"></div>
+    <!-- coffee history -->
+    <div class="panel">
+      <div class="panel-head cherry"><span>☕ 커피 기록</span><div class="wc"><div class="wc-btn" onclick="tog(this)">_</div><div class="wc-btn">□</div><div class="wc-btn">×</div></div></div>
+      <div class="panel-body">
+        <div id="c-hist-list"></div>
+
       </div>
     </div>
   </div>
+</div>
 
+<!-- ═══════════════════════════════════
+     PAGE 2: 청소 당번
+═══════════════════════════════════ -->
+<div id="page-clean" class="page">
+  <div class="cl-header">
+    <div class="cl-header-top">
+      <h1>🧹 청소 당번!</h1>
+      <p class="sub">CLEANING DUTY ASSIGNMENT</p>
+    </div>
+    <div class="cl-badge-row">
+      <div class="cl-badge"><span id="cl-badge-p">0</span><label>명 인원</label></div>
+      <div class="cl-badge"><span id="cl-badge-z">0</span><label>곳 구역</label></div>
+      <div class="cl-badge"><span id="cl-badge-r">-</span><label>비율</label></div>
+    </div>
+  </div>
+  <div class="sync-bar" id="cl-sync-bar"><div class="sync-dot" id="cl-sync-dot"></div><span id="cl-sync-label">연결 중...</span></div>
+  <div class="setup-banner" id="cl-setup" style="display:none">
+    <strong>⚙ SETUP</strong>Apps Script URL을 입력하세요.
+    <input type="text" id="cl-url-input" placeholder="https://script.google.com/macros/s/.../exec">
+    <div style="margin-top:8px"><button class="btn small" onclick="clSaveUrl()">▶ 연결</button></div>
+  </div>
+  <div class="wrap">
+    <!-- 청소 서브탭 -->
+    <div style="display:flex;border:2px solid #0d2010;box-shadow:3px 3px 0 #0d2010;margin-bottom:1rem;background:#0d2010;gap:2px;">
+      <button id="cl-tab0" onclick="showClTab(0)" style="flex:1;padding:9px 2px;border:none;font-family:'BelovedMyoeunttobak',sans-serif;font-size:11px;cursor:pointer;transition:all 0.1s;background:#f0fdf8;color:#0d2010;border-top:3px solid #3ac8a0;">👤 인원</button>
+      <button id="cl-tab1" onclick="showClTab(1)" style="flex:1;padding:9px 2px;border:none;font-family:'BelovedMyoeunttobak',sans-serif;font-size:11px;cursor:pointer;transition:all 0.1s;background:#b8f0e0;color:#4a7060;">🗺 구역</button>
+      <button id="cl-tab2" onclick="showClTab(2)" style="flex:1;padding:9px 2px;border:none;font-family:'BelovedMyoeunttobak',sans-serif;font-size:11px;cursor:pointer;transition:all 0.1s;background:#b8f0e0;color:#4a7060;">🎲 뽑기</button>
+      <button id="cl-tab3" onclick="showClTab(3)" style="flex:1;padding:9px 2px;border:none;font-family:'BelovedMyoeunttobak',sans-serif;font-size:11px;cursor:pointer;transition:all 0.1s;background:#b8f0e0;color:#4a7060;">📋 기록</button>
+    </div>
+
+    <!-- TAB 0: 인원 관리 -->
+    <div id="cl-section-0" class="cl-section">
+      <div class="panel">
+        <div class="panel-head sky"><span>👤 인원 관리</span></div>
+        <div class="panel-body">
+          <div class="tag-grid" id="cl-persons-grid"></div>
+          <div class="add-row">
+            <input type="text" id="cl-person-input" placeholder="이름 입력 후 엔터..." maxlength="10" onkeydown="if(event.key==='Enter')clAddPerson()">
+            <button class="btn small primary" onclick="clAddPerson()">+ 추가</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 1: 구역 관리 -->
+    <div id="cl-section-1" class="cl-section" style="display:none">
+      <div class="panel">
+        <div class="panel-head mint"><span>🗺 청소 구역 관리</span></div>
+        <div class="panel-body">
+          <p class="section-label">구역 목록 (클릭하면 수정)</p>
+          <div class="tag-grid" id="cl-zones-grid"></div>
+          <div class="add-row">
+            <input type="text" id="cl-zone-input" placeholder="구역 입력 후 엔터... (화장실, 주방 등)" maxlength="15" onkeydown="if(event.key==='Enter')clAddZone()">
+            <button class="btn small primary" onclick="clAddZone()">+ 추가</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: 당번 뽑기 -->
+    <div id="cl-section-2" class="cl-section" style="display:none">
+      <div class="panel">
+        <div class="panel-head green"><span>🎲 청소 당번 뽑기</span></div>
+        <div class="panel-body">
+          <div class="cl-info-note" id="cl-match-info">인원과 구역을 먼저 추가해주세요.</div>
+          <div id="cl-match-grid"></div>
+          <div class="btn-row">
+            <button class="btn primary" onclick="clDoMatch()">🎲 랜덤 매칭</button>
+            <button class="btn save-btn" id="cl-save-match" style="display:none" onclick="clSaveMatch()">💾 이번 주 당번 저장</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: 기록 -->
+    <div id="cl-section-3" class="cl-section" style="display:none">
+      <div class="panel">
+        <div class="panel-head sky"><span>📋 당번 기록</span></div>
+        <div class="panel-body">
+          <div id="cl-hist-list"></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const HARDCODED_URL = "https://script.google.com/macros/s/AKfycbyth4uq0IcNkKd4CDoKVO8OKj3hY8rYPX4FEzHcH1AxkMZ_6yAER2fgHv8LyA15TckC/exec";
-const URL_KEY = 'lunch-script-url';
-let SCRIPT_URL = HARDCODED_URL || localStorage.getItem(URL_KEY) || "";
-
-function toggleWindow(btn) {
-  const window = btn.closest('.window');
-  const body = window.querySelector('.window-body');
-  const isCollapsed = body.classList.toggle('collapsed');
-  window.classList.toggle('collapsed', isCollapsed);
-  btn.textContent = isCollapsed ? '▲' : '_';
-}
-
-let state = { menus: [], votes: {}, history: [] };
-let spinTimeout = null;
-let lastSpun = null;
-let isSaving = false;
-let currentTab = 0;
-
-function getMyVotes() { try { return JSON.parse(localStorage.getItem('my-lunch-votes') || '{}'); } catch(e) { return {}; } }
-function setMyVotes(v) { localStorage.setItem('my-lunch-votes', JSON.stringify(v)); }
-
-function setSyncStatus(s, label) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  dot.className = 'sync-dot ' + s;
-  lbl.textContent = label;
-}
-
+// ══════════════════════════════════════
+// GLOBAL UTILS
+// ══════════════════════════════════════
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = '> ' + msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
-
-function saveScriptUrl() {
-  const val = document.getElementById('script-url-input').value.trim();
-  if (!val.startsWith('https://script.google.com')) { showToast('올바른 URL을 입력해주세요'); return; }
-  SCRIPT_URL = val;
-  localStorage.setItem(URL_KEY, val);
-  document.getElementById('setup-banner').style.display = 'none';
-  loadState();
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
 }
-
-async function loadState() {
-  if (!SCRIPT_URL) {
-    document.getElementById('setup-banner').style.display = 'block';
-    setSyncStatus('err', 'URL 미설정');
-    return;
-  }
-  setSyncStatus('loading', '동기화 중...');
-  try {
-    const res = await fetch(SCRIPT_URL);
-    const json = await res.json();
-    if (json.ok) {
-      state = json.data;
-      if (!state.menus) state.menus = [];
-      if (!state.votes) state.votes = {};
-      if (!state.history) state.history = [];
-      setSyncStatus('ok', '실시간 연결됨 ●');
-      render();
-    } else { setSyncStatus('err', '불러오기 실패'); }
-  } catch(e) {
-    setSyncStatus('err', '연결 오류');
-    document.getElementById('setup-banner').style.display = 'block';
+function tog(btn) {
+  const p = btn.closest('.panel'); const b = p.querySelector('.panel-body');
+  const c = b.classList.toggle('collapsed'); p.classList.toggle('collapsed',c);
+  btn.textContent = c ? '▲' : '_';
+}
+function togCasino(btn) {
+  const p = btn.closest('.casino-panel'); const b = p.querySelector('.casino-body');
+  b.classList.toggle('collapsed'); btn.textContent = b.classList.contains('collapsed') ? '▲' : '_';
+}
+function togKitch(btn) {
+  const p = btn.closest('.kitch-panel'); const b = p.querySelector('.kitch-body');
+  b.classList.toggle('collapsed'); btn.textContent = b.classList.contains('collapsed') ? '▲' : '_';
+}
+function showLTab(idx) {
+  const colors = ['#5bbfb0','#f0824a','#f0a0b8','#f5c842'];
+  for(let i=0;i<4;i++){
+    const sec=document.getElementById('l-section-'+i);
+    const btn=document.getElementById('l-tab'+i);
+    if(!sec||!btn)continue;
+    const active=i===idx;
+    sec.style.display=active?'block':'none';
+    if(active){btn.style.background='#f5efe0';btn.style.color='#2a2018';btn.style.borderTop='3px solid '+colors[i];}
+    else{btn.style.background='#ede4ce';btn.style.color='#7a6a58';btn.style.borderTop='none';}
   }
 }
-
-async function saveState() {
-  if (!SCRIPT_URL || isSaving) return;
-  isSaving = true;
-  setSyncStatus('loading', '저장 중...');
-  try {
-    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(state) });
-    setSyncStatus('ok', '저장됨 ●');
-  } catch(e) { setSyncStatus('err', '저장 실패'); }
-  finally { isSaving = false; }
+function switchPage(idx) {
+  document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i===idx));
+  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  if (idx===1 && cPersons.length) cDrawRoulette();
+  if (idx===1 && cPersons.length) cBuildLadder();
 }
 
-function render() { renderMenuList(); renderVoteList(); renderHistory(); }
+// ══════════════════════════════════════
+// PAGE 0: LUNCH
+// ══════════════════════════════════════
+const L_URL_KEY = 'lunch-script-url';
+let lUrl = 'https://script.google.com/macros/s/AKfycbyth4uq0IcNkKd4CDoKVO8OKj3hY8rYPX4FEzHcH1AxkMZ_6yAER2fgHv8LyA15TckC/exec' || localStorage.getItem(L_URL_KEY) || '';
+let lMenus = JSON.parse(localStorage.getItem('lunch-menus') || '["김치찌개","된장찌개","삼겹살","비빔밥","냉면","짜장면","초밥","파스타","샐러드","순대국밥","치킨","카레","라멘","떡볶이","갈비탕"]');
+let lVotes = JSON.parse(localStorage.getItem('lunch-votes') || '{}');
+let lHistory = [];
+let lastLunchSpin = null;
+let lSpinTimeout = null;
+let lSaving = false;
 
-function renderMenuList() {
-  const el = document.getElementById('menu-list');
-  if (!state.menus.length) { el.innerHTML = '<p class="empty-msg">// 메뉴가 없습니다</p>'; return; }
-  el.innerHTML = state.menus.map((m, i) => `
-    <div class="menu-item">
-      <span class="menu-name">${m}</span>
-      <button class="del-btn" onclick="deleteMenu(${i})">✕</button>
-    </div>`).join('');
+function lSyncStatus(s,l){document.getElementById('l-sync-dot').className='sync-dot '+s;document.getElementById('l-sync-label').textContent=l;}
+function lSaveUrl(){const v=document.getElementById('l-url-input').value.trim();if(!v.startsWith('https://script.google.com')){showToast('올바른 URL을 입력해주세요');return;}lUrl=v;localStorage.setItem(L_URL_KEY,v);document.getElementById('l-setup').style.display='none';lLoadState();}
+async function lLoadState(){
+  if(!lUrl){document.getElementById('l-setup').style.display='block';lSyncStatus('err','URL 미설정');return;}
+  lSyncStatus('loading','동기화 중...');
+  try{const r=await fetch(lUrl);const j=await r.json();if(j.ok){lMenus=j.data.menus||lMenus;lVotes=j.data.votes||{};lHistory=j.data.history||[];lSyncStatus('ok','실시간 연결됨 ●');lRender();}else lSyncStatus('err','실패');}
+  catch(e){lSyncStatus('err','연결 오류');document.getElementById('l-setup').style.display='block';}
 }
-
-function renderVoteList() {
-  const el = document.getElementById('vote-list');
-  const myVotes = getMyVotes();
-  if (!state.menus.length) { el.innerHTML = '<p class="empty-msg">// 메뉴가 없습니다</p>'; return; }
-  const sorted = [...state.menus].sort((a,b) => (state.votes[b]||0)-(state.votes[a]||0));
-  const maxVotes = Math.max(...sorted.map(m => state.votes[m]||0));
-  el.innerHTML = sorted.map(m => {
-    const v = state.votes[m] || 0;
-    const isTop = v > 0 && v === maxVotes;
-    const safe = m.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-    return `<div class="menu-item ${isTop ? 'top-voted' : ''}">
-      ${isTop ? '<span class="top-label">★</span>' : ''}
-      <span class="menu-name">${m}</span>
-      <span class="vote-count">${v > 0 ? v+'표' : ''}</span>
-      <button class="vote-btn ${myVotes[m] ? 'voted' : ''}" onclick="vote('${safe}')">
-        ${myVotes[m] ? '✓' : '+'}
-      </button>
-    </div>`;
+async function lSaveState(){
+  if(!lUrl||lSaving)return;lSaving=true;lSyncStatus('loading','저장 중...');
+  try{await fetch(lUrl,{method:'POST',body:JSON.stringify({menus:lMenus,votes:lVotes,history:lHistory})});lSyncStatus('ok','저장됨 ●');}
+  catch(e){lSyncStatus('err','저장 실패');}finally{lSaving=false;}
+}
+function lRender(){lRenderMenuList();lRenderVoteList();lRenderHistory();}
+function lRenderMenuList(){
+  const el=document.getElementById('l-menu-list');
+  if(!lMenus.length){el.innerHTML='<p class="empty-msg">// 메뉴가 없습니다</p>';return;}
+  el.innerHTML=lMenus.map((m,i)=>`<div style="display:flex;align-items:center;gap:8px;background:#ede4ce;border:1.5px solid #2a2018;padding:8px 10px;margin-bottom:5px"><span style="flex:1;font-size:13px">${m}</span><button class="del-btn" onclick="lDelMenu(${i})">✕</button></div>`).join('');
+}
+function lRenderVoteList(){
+  const el=document.getElementById('l-vote-list');
+  const my=JSON.parse(localStorage.getItem('my-lunch-votes')||'{}');
+  if(!lMenus.length){el.innerHTML='<p class="empty-msg">// 메뉴가 없습니다</p>';return;}
+  const sorted=[...lMenus].sort((a,b)=>(lVotes[b]||0)-(lVotes[a]||0));
+  const mx=Math.max(...sorted.map(m=>lVotes[m]||0));
+  el.innerHTML=sorted.map(m=>{const v=lVotes[m]||0;const isTop=v>0&&v===mx;const safe=m.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    return`<div class="vote-item ${isTop?'top-voted':''}"><span class="mn">${isTop?'★ ':''}${m}</span><span class="vc">${v>0?v+'표':''}</span><button class="vote-btn ${my[m]?'voted':''}" onclick="lVote('${safe}')">${my[m]?'✓':'+'}</button></div>`;
   }).join('');
 }
-
-function renderHistory() {
-  const el = document.getElementById('history-list');
-  if (!state.history || !state.history.length) { el.innerHTML = '<p class="empty-msg">// 기록 없음</p>'; return; }
-  el.innerHTML = [...state.history].reverse().map(h =>
-    `<div class="history-item">
-      <span class="history-date">${h.date}</span>
-      <span class="history-menu">${h.menu}</span>
-    </div>`).join('');
+function lRenderHistory(){
+  const el=document.getElementById('l-hist-list');
+  if(!lHistory.length){el.innerHTML='<p class="empty-msg">// 기록 없음</p>';return;}
+  el.innerHTML=[...lHistory].reverse().map(h=>`<div class="l-hist-item"><span class="l-hist-date">${h.date}</span><span class="l-hist-menu">${h.menu}</span></div>`).join('');
 }
-
-function showTab(idx) {
-  currentTab = idx;
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === idx));
-  document.querySelectorAll('.section').forEach((s,i) => s.classList.toggle('active', i === idx));
-}
-
-function spinMenu() {
-  if (!state.menus.length) { showToast('메뉴를 먼저 추가해주세요!'); return; }
-  if (spinTimeout) clearTimeout(spinTimeout);
-  const el = document.getElementById('spin-result');
-  const saveBtn = document.getElementById('save-btn');
-  saveBtn.style.display = 'none';
+function lSpin(){
+  if(!lMenus.length){showToast('메뉴를 먼저 추가해주세요!');return;}
+  if(lSpinTimeout)clearTimeout(lSpinTimeout);
+  const el=document.getElementById('l-spin-result');
+  document.getElementById('l-save-spin-btn').style.display='none';
   el.classList.add('spinning');
-  let count = 0;
-  const total = 22 + Math.floor(Math.random() * 10);
-  let delay = 50;
-  function tick() {
-    el.textContent = state.menus[Math.floor(Math.random() * state.menus.length)];
-    count++;
-    if (count >= total) {
-      el.classList.remove('spinning');
-      lastSpun = el.textContent;
-      saveBtn.style.display = 'inline-flex';
-      showToast(lastSpun + ' 당첨!');
-    } else {
-      if (count > total * 0.55) delay = Math.min(delay + 22, 260);
-      spinTimeout = setTimeout(tick, delay);
-    }
+  let count=0,total=20+Math.floor(Math.random()*12),delay=50;
+  function tick(){el.textContent=lMenus[Math.floor(Math.random()*lMenus.length)];count++;
+    if(count>=total){el.classList.remove('spinning');lastLunchSpin=el.textContent;document.getElementById('l-save-spin-btn').style.display='inline-flex';showToast(lastLunchSpin+' 당첨! 🍽');}
+    else{if(count>total*0.55)delay=Math.min(delay+22,260);lSpinTimeout=setTimeout(tick,delay);}
+  }tick();
+}
+async function lSaveHistory(menu){
+  if(!menu)return;const now=new Date();const date=`${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  lHistory.push({menu,date});if(lHistory.length>50)lHistory=lHistory.slice(-50);
+  await lSaveState();document.getElementById('l-save-spin-btn').style.display='none';lRenderHistory();showToast('기록 저장 완료!');
+}
+async function lVote(menu){
+  const my=JSON.parse(localStorage.getItem('my-lunch-votes')||'{}');
+  if(my[menu]){lVotes[menu]=Math.max(0,(lVotes[menu]||1)-1);if(!lVotes[menu])delete lVotes[menu];delete my[menu];showToast('투표 취소');}
+  else{lVotes[menu]=(lVotes[menu]||0)+1;my[menu]=true;showToast(menu+' 투표!');}
+  localStorage.setItem('my-lunch-votes',JSON.stringify(my));lRenderVoteList();await lSaveState();
+}
+async function lAddMenu(){
+  const input=document.getElementById('l-menu-input');const name=input.value.trim();if(!name)return;
+  if(lMenus.includes(name)){showToast('이미 있는 메뉴예요!');return;}
+  lMenus.push(name);input.value='';lRender();await lSaveState();showToast(name+' 추가됨!');
+}
+async function lDelMenu(idx){if(!confirm(`"${lMenus[idx]}" 를 삭제할까요?`))return;const m=lMenus[idx];lMenus.splice(idx,1);if(lVotes[m])delete lVotes[m];lRender();await lSaveState();}
+async function lClearHistory(){if(!confirm('기록을 전부 삭제할까요?'))return;lHistory=[];await lSaveState();lRenderHistory();}
+
+// ══════════════════════════════════════
+// PAGE 1: COFFEE
+// ══════════════════════════════════════
+const C_URL_KEY = 'coffee-script-url';
+let cUrl = 'https://script.google.com/macros/s/AKfycbwNH5AbYX6mQsgn587pibcLMn1cgae6G-qnfyhqSKS8Qhzs81B0418P9vKVw8MLJOWGaA/exec' || localStorage.getItem(C_URL_KEY) || '';
+let cPersons = JSON.parse(localStorage.getItem('coffee-names') || '["김철수","이영희","박지훈","최수연"]');
+let cHistory = [];
+let lastCoffeeRand=null,lastCoffeeRoul=null,lastCoffeeLad=null,lastCoffeeDrw=null;
+let cSaving=false,cRoulSpinning=false,cRoulAngle=Math.random()*Math.PI*2,cLadData=null;
+let cRandTimeout=null,cDrawNames=[],cDrawRevealed=false;
+const CASINO_COLORS=['#75070C','#8B0000','#a01015','#c03030','#6d0a0a','#b02020','#900c0c','#d04040'];
+const KITCH_COLORS=['#f5c842','#f0824a','#5bbfb0','#f0a0b8','#7ec87e','#c8a0f0','#f07070','#a0c8f0','#ffb347','#90ee90'];
+
+function cSyncStatus(s,l){document.getElementById('c-sync-dot').className='sync-dot '+s;document.getElementById('c-sync-label').textContent=l;}
+function cSaveUrl(){const v=document.getElementById('c-url-input').value.trim();if(!v.startsWith('https://script.google.com')){showToast('올바른 URL을 입력해주세요');return;}cUrl=v;localStorage.setItem(C_URL_KEY,v);document.getElementById('c-setup').style.display='none';cLoadState();}
+async function cLoadState(){
+  if(!cUrl){document.getElementById('c-setup').style.display='block';cSyncStatus('err','URL 미설정');return;}
+  cSyncStatus('loading','동기화 중...');
+  try{const r=await fetch(cUrl);const j=await r.json();if(j.ok){cHistory=j.data.history||[];cSyncStatus('ok','실시간 연결됨 ●');cRenderHistory();}else cSyncStatus('err','실패');}
+  catch(e){cSyncStatus('err','연결 오류');document.getElementById('c-setup').style.display='block';}
+}
+async function cSaveToServer(){
+  if(!cUrl||cSaving)return;cSaving=true;cSyncStatus('loading','저장 중...');
+  try{await fetch(cUrl,{method:'POST',body:JSON.stringify({history:cHistory})});cSyncStatus('ok','저장됨 ●');}
+  catch(e){cSyncStatus('err','저장 실패');}finally{cSaving=false;}
+}
+async function cSaveResult(mode,who){
+  if(!who)return;const now=new Date();const date=`${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  cHistory.push({who,mode,date});if(cHistory.length>100)cHistory=cHistory.slice(-100);
+  cRenderHistory();await cSaveToServer();
+  const map={'랜덤':'c-rand-save','룰렛':'c-rul-save','사다리':'c-lad-save','제비뽑기':'c-drw-save'};
+  const el=document.getElementById(map[mode]);if(el)el.style.display='none';showToast('☕ 기록 저장 완료!');
+}
+async function cClearHistory(){if(!confirm('기록을 전부 삭제할까요?'))return;cHistory=[];await cSaveToServer();cRenderHistory();}
+function cRenderHistory(){
+  const el=document.getElementById('c-hist-list');
+  if(!cHistory.length){el.innerHTML='<p class="empty-msg">// 아직 기록이 없어요</p>';return;}
+  el.innerHTML=[...cHistory].reverse().map(h=>`<div class="c-hist-item"><span class="c-hist-date">${h.date}</span><span class="c-hist-who">☕ ${h.who}</span><span class="c-hist-mode">${h.mode}</span></div>`).join('');
+}
+function cAddPerson(){
+  const input=document.getElementById('c-person-input');const name=input.value.trim();if(!name)return;
+  if(cPersons.includes(name)){showToast('이미 있어요!');return;}
+  cPersons.push(name);input.value='';localStorage.setItem('coffee-names',JSON.stringify(cPersons));cRenderPersons();cDrawRoulette();cBuildLadder();
+}
+function cRemovePerson(idx){cPersons.splice(idx,1);localStorage.setItem('coffee-names',JSON.stringify(cPersons));cRenderPersons();cDrawRoulette();cBuildLadder();}
+function cRenderPersons(){
+  const el=document.getElementById('c-persons-grid');
+  if(!cPersons.length){el.innerHTML='<span style="font-size:12px;color:#7a6050">이름을 추가해주세요</span>';return;}
+  el.innerHTML=cPersons.map((n,i)=>`<div class="tag">${n}<button class="rm" onclick="cRemovePerson(${i})">×</button></div>`).join('');
+}
+function showCGame(idx){
+  for(let i=0;i<4;i++){
+    const el=document.getElementById('cg-'+i);el.style.display=i===idx?'block':'none';
+    const btn=document.getElementById('cg'+i);
+    if(i===idx){btn.style.background='#F0E6DA';btn.style.color='#1a0f08';btn.style.borderTop='3px solid #4F6815';}
+    else{btn.style.background='#ddd0c0';btn.style.color='#7a6050';btn.style.borderTop='none';}
   }
-  tick();
+  if(idx===1)cDrawRoulette();if(idx===2)cBuildLadder();if(idx===3)cSetupDraw();
+}
+// coffee random
+function cSpinRandom(){
+  if(!cPersons.length){showToast('참가자를 추가해주세요!');return;}
+  if(cRandTimeout)clearTimeout(cRandTimeout);
+  const el=document.getElementById('c-rand-result');document.getElementById('c-rand-save').style.display='none';
+  el.classList.add('spinning');let count=0,total=20+Math.floor(Math.random()*12),delay=50;
+  function tick(){el.textContent=cPersons[Math.floor(Math.random()*cPersons.length)];count++;
+    if(count>=total){el.classList.remove('spinning');lastCoffeeRand=el.textContent;document.getElementById('c-rand-save').style.display='inline-flex';showToast('☕ '+lastCoffeeRand+' 당첨!!');}
+    else{if(count>total*0.55)delay=Math.min(delay+22,260);cRandTimeout=setTimeout(tick,delay);}
+  }tick();
+}
+// roulette
+function cDrawRoulette(){
+  const canvas=document.getElementById('roulette-canvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=W/2-4;
+  ctx.clearRect(0,0,W,H);
+  if(!cPersons.length){ctx.fillStyle='#2a1510';ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(255,237,171,0.4)';ctx.font='13px BelovedMyoeunttobak,sans-serif';ctx.textAlign='center';ctx.fillText('참가자를 추가하세요',cx,cy);return;}
+  const slice=(Math.PI*2)/cPersons.length;
+  cPersons.forEach((name,i)=>{const start=cRoulAngle+i*slice,end=start+slice;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();ctx.fillStyle=CASINO_COLORS[i%CASINO_COLORS.length];ctx.fill();ctx.strokeStyle='rgba(212,184,48,0.6)';ctx.lineWidth=1.5;ctx.stroke();ctx.save();ctx.translate(cx,cy);ctx.rotate(start+slice/2);ctx.textAlign='right';ctx.fillStyle='#FFEDAB';ctx.font='bold 12px BelovedMyoeunttobak,sans-serif';ctx.fillText(name.length>5?name.slice(0,5):name,r-10,5);ctx.restore();});
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#d4b830';ctx.lineWidth=5;ctx.stroke();
+  for(let i=0;i<cPersons.length;i++){const a=cRoulAngle+i*slice;ctx.beginPath();ctx.arc(cx+(r-10)*Math.cos(a),cy+(r-10)*Math.sin(a),3,0,Math.PI*2);ctx.fillStyle='#d4b830';ctx.fill();}
+  ctx.beginPath();ctx.arc(cx,cy,18,0,Math.PI*2);ctx.fillStyle='#d4b830';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,12,0,Math.PI*2);ctx.fillStyle='#1c1008';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle='#d4b830';ctx.fill();
+}
+function cSpinRoulette(){
+  if(!cPersons.length){showToast('참가자를 추가해주세요!');return;}
+  if(cRoulSpinning)return;cRoulSpinning=true;
+  document.getElementById('c-rul-save').style.display='none';document.getElementById('roulette-result').textContent='';
+  const totalSpin=(Math.PI*2)*(10+Math.random()*10)+Math.random()*Math.PI*2;
+  const duration=4000+Math.random()*1000;const startTime=performance.now(),startAngle=cRoulAngle;
+  function animate(now){const elapsed=now-startTime,progress=Math.min(elapsed/duration,1);const ease=1-Math.pow(1-progress,3);cRoulAngle=startAngle+totalSpin*ease;cDrawRoulette();
+    if(progress<1){requestAnimationFrame(animate);}
+    else{cRoulSpinning=false;const slice=(Math.PI*2)/cPersons.length;const norm=(((-cRoulAngle-Math.PI/2)%(Math.PI*2))+Math.PI*2)%(Math.PI*2);const idx=Math.floor(norm/slice)%cPersons.length;lastCoffeeRoul=cPersons[idx];document.getElementById('roulette-result').textContent='★ '+lastCoffeeRoul+' 당첨!! ★';document.getElementById('c-rul-save').style.display='inline-flex';showToast('☕ '+lastCoffeeRoul+' 당첨!!');}
+  }requestAnimationFrame(animate);
+}
+// ladder
+function cBuildLadder(){
+  if(!cPersons.length)return;
+  document.getElementById('c-lad-save').style.display='none';
+  const rEl=document.getElementById('ladder-result');rEl.style.display='none';rEl.textContent='';lastCoffeeLad=null;
+  const canvas=document.getElementById('ladder-canvas');const n=cPersons.length;
+  canvas.width=Math.min(Math.max(n*80,300),500);canvas.height=300;
+  const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);
+  const colW=canvas.width/(n+1);const xs=Array.from({length:n},(_,i)=>colW*(i+1));
+  const topY=48,botY=canvas.height-48,rungs=7;
+  const rungYs=Array.from({length:rungs},(_,i)=>topY+(botY-topY)*(i+1)/(rungs+1));
+  const rungData=[];rungYs.forEach(y=>{let used=new Set();for(let i=0;i<n-1;i++){if(!used.has(i)&&!used.has(i+1)&&Math.random()>0.45){rungData.push([i,i+1,y]);used.add(i);used.add(i+1);}}});
+  cLadData={xs,topY,botY,rungData,cols:n,names:[...cPersons],revealed:false};
+  cDrawLadder(ctx,canvas.width,canvas.height,false);
+}
+function cDrawLadder(ctx,W,H,reveal){
+  const{xs,topY,botY,rungData,cols,names:ns}=cLadData;
+  ctx.fillStyle='#fff8f0';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(0,0,0,0.04)';ctx.lineWidth=1;for(let x=0;x<W;x+=16){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}for(let y=0;y<H;y+=16){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  xs.forEach((x,i)=>{ctx.lineWidth=5;ctx.strokeStyle=KITCH_COLORS[i%KITCH_COLORS.length];ctx.beginPath();ctx.moveTo(x,topY);ctx.lineTo(x,botY);ctx.stroke();ctx.lineWidth=7;ctx.strokeStyle='rgba(0,0,0,0.12)';ctx.globalCompositeOperation='destination-over';ctx.beginPath();ctx.moveTo(x,topY);ctx.lineTo(x,botY);ctx.stroke();ctx.globalCompositeOperation='source-over';});
+  rungData.forEach(([a,b,y])=>{ctx.lineWidth=4;ctx.strokeStyle='#1a0f08';ctx.beginPath();ctx.moveTo(xs[a],y);ctx.lineTo(xs[b],y);ctx.stroke();ctx.lineWidth=2.5;ctx.strokeStyle=KITCH_COLORS[(a+b)%KITCH_COLORS.length];ctx.beginPath();ctx.moveTo(xs[a],y);ctx.lineTo(xs[b],y);ctx.stroke();[xs[a],xs[b]].forEach(dx=>{ctx.beginPath();ctx.arc(dx,y,4,0,Math.PI*2);ctx.fillStyle='#1a0f08';ctx.fill();});});
+  ns.forEach((name,i)=>{const x=xs[i],c=KITCH_COLORS[i%KITCH_COLORS.length];ctx.fillStyle=c;ctx.strokeStyle='#1a0f08';ctx.lineWidth=2.5;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x-26,topY-38,52,28,5);else ctx.rect(x-26,topY-38,52,28);ctx.fill();ctx.stroke();ctx.fillStyle='#1a0f08';ctx.font='bold 11px BelovedMyoeunttobak,sans-serif';ctx.textAlign='center';ctx.fillText(name.length>4?name.slice(0,4):name,x,topY-19);});
+  xs.forEach((x,i)=>{if(reveal&&cLadData.resultMap){const isW=cLadData.resultMap[i]===cLadData.winnerIdx;ctx.fillStyle=isW?'#f5c842':'#e0d8cc';ctx.strokeStyle='#1a0f08';ctx.lineWidth=2.5;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x-26,botY+8,52,26,5);else ctx.rect(x-26,botY+8,52,26);ctx.fill();ctx.stroke();ctx.font=isW?'bold 11px BelovedMyoeunttobak':'10px BelovedMyoeunttobak';ctx.fillStyle='#1a0f08';ctx.textAlign='center';ctx.fillText(isW?'☕ 커피!':'안전',x,botY+24);}else{ctx.fillStyle='#ede4ce';ctx.strokeStyle='#1a0f08';ctx.lineWidth=2;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x-18,botY+8,36,24,4);else ctx.rect(x-18,botY+8,36,24);ctx.fill();ctx.stroke();ctx.font='15px BelovedMyoeunttobak';ctx.fillStyle='#7a6050';ctx.textAlign='center';ctx.fillText('?',x,botY+25);}});
+}
+function cRevealLadder(){
+  if(!cLadData){cBuildLadder();return;}
+  const{rungData,cols}=cLadData;const resultMap={};
+  for(let s=0;s<cols;s++){let col=s;const allYs=[...new Set(rungData.map(r=>r[2]))].sort((a,b)=>a-b);for(const ry of allYs){const rR=rungData.find(r=>r[0]===col&&r[2]===ry);const rL=rungData.find(r=>r[1]===col&&r[2]===ry);if(rR)col=rR[1];else if(rL)col=rL[0];}resultMap[s]=col;}
+  const winnerDest=Math.floor(Math.random()*cols);let winnerStart=-1;
+  for(let s=0;s<cols;s++){if(resultMap[s]===winnerDest){winnerStart=s;break;}}
+  if(winnerStart===-1)winnerStart=Math.floor(Math.random()*cols);
+  cLadData.resultMap=resultMap;cLadData.winnerIdx=winnerDest;lastCoffeeLad=cLadData.names[winnerStart];
+  const canvas=document.getElementById('ladder-canvas');cDrawLadder(canvas.getContext('2d'),canvas.width,canvas.height,true);
+  const rEl=document.getElementById('ladder-result');rEl.textContent='☕ '+lastCoffeeLad+' 당첨!!';rEl.style.display='inline-block';
+  document.getElementById('c-lad-save').style.display='inline-flex';showToast('☕ '+lastCoffeeLad+' 당첨!!');
+}
+// draw
+function cSetupDraw(){
+  if(!cPersons.length){showToast('참가자를 추가해주세요!');return;}
+  document.getElementById('c-drw-save').style.display='none';document.getElementById('draw-result').textContent='';
+  lastCoffeeDrw=null;cDrawRevealed=false;cDrawNames=shuffle(cPersons);cRenderTickets(false,-1);
+}
+function cRenderTickets(revealed,winnerIdx){
+  const el=document.getElementById('draw-cards');
+  el.innerHTML=cDrawNames.map((name,i)=>{const num=Math.floor(Math.random()*900000+100000);
+    if(!revealed)return`<div class="ticket" onclick="cRevealTicket(${i})"><div class="t-inner"><span class="t-num">${num}</span><span class="t-icon">☕</span><span class="t-label">PICK</span></div></div>`;
+    const isW=i===winnerIdx;return`<div class="ticket revealed ${isW?'winner':'loser'}"><div class="t-inner"><span class="t-num">${num}</span><span class="t-icon">${isW?'☕':'✓'}</span><span class="${isW?'t-name':'t-name'}">${name}</span></div></div>`;
+  }).join('');
+}
+function cRevealTicket(idx){
+  if(cDrawRevealed)return;cDrawRevealed=true;lastCoffeeDrw=cDrawNames[idx];
+  cRenderTickets(true,idx);document.getElementById('draw-result').textContent='★ '+lastCoffeeDrw+' 당첨!! ★';
+  document.getElementById('c-drw-save').style.display='inline-flex';showToast('☕ '+lastCoffeeDrw+' 당첨!!');
 }
 
-async function saveToHistory() {
-  if (!lastSpun) return;
-  const now = new Date();
-  const date = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-  state.history.push({ menu: lastSpun, date });
-  if (state.history.length > 50) state.history = state.history.slice(-50);
-  await saveState();
-  document.getElementById('save-btn').style.display = 'none';
-  renderHistory();
-  showToast('기록 저장 완료!');
-}
+// ══════════════════════════════════════
+// PAGE 2: CLEAN
+// ══════════════════════════════════════
+const CL_URL_KEY = 'clean-script-url';
+let clUrl = 'https://script.google.com/macros/s/AKfycbxvfIL4qdr02-WVwXw-_fGykAJIOLbLOX2NBgXdwm7Q4Y7QgapAgLhpTCPk5v6T4xDUqw/exec' || localStorage.getItem(CL_URL_KEY) || '';
+let clPersons = JSON.parse(localStorage.getItem('clean-persons') || '["김철수","이영희","박지훈","최수연"]');
+let clZones = JSON.parse(localStorage.getItem('clean-zones') || '["화장실","주방","회의실","사무실"]');
+let clHistory = [];
+let clMatch = null;
+let clSaving = false;
 
-async function vote(menu) {
-  const myVotes = getMyVotes();
-  if (myVotes[menu]) {
-    state.votes[menu] = Math.max(0, (state.votes[menu]||1) - 1);
-    if (!state.votes[menu]) delete state.votes[menu];
-    delete myVotes[menu];
-    showToast('투표 취소');
-  } else {
-    state.votes[menu] = (state.votes[menu]||0) + 1;
-    myVotes[menu] = true;
-    showToast(menu + ' 투표!');
+function showClTab(idx) {
+  for(let i=0;i<4;i++){
+    const sec=document.getElementById('cl-section-'+i);
+    const btn=document.getElementById('cl-tab'+i);
+    if(!sec||!btn)continue;
+    const active=i===idx;
+    sec.style.display=active?'block':'none';
+    if(active){btn.style.background='#f0fdf8';btn.style.color='#0d2010';btn.style.borderTop='3px solid #3ac8a0';}
+    else{btn.style.background='#b8f0e0';btn.style.color='#4a7060';btn.style.borderTop='none';}
   }
-  setMyVotes(myVotes);
-  renderVoteList();
-  await saveState();
+}
+function clSyncStatus(s,l){document.getElementById('cl-sync-dot').className='sync-dot '+s;document.getElementById('cl-sync-label').textContent=l;}
+function clSaveUrl(){const v=document.getElementById('cl-url-input').value.trim();if(!v.startsWith('https://script.google.com')){showToast('올바른 URL을 입력해주세요');return;}clUrl=v;localStorage.setItem(CL_URL_KEY,v);document.getElementById('cl-setup').style.display='none';clLoadState();}
+async function clLoadState(){
+  if(!clUrl){document.getElementById('cl-setup').style.display='block';clSyncStatus('err','URL 미설정');return;}
+  clSyncStatus('loading','동기화 중...');
+  try{const r=await fetch(clUrl);const j=await r.json();if(j.ok){clHistory=j.data.history||[];clSyncStatus('ok','실시간 연결됨 ●');clRenderHistory();}else clSyncStatus('err','실패');}
+  catch(e){clSyncStatus('err','연결 오류');document.getElementById('cl-setup').style.display='block';}
+}
+async function clSaveToServer(){
+  if(!clUrl||clSaving)return;clSaving=true;clSyncStatus('loading','저장 중...');
+  try{await fetch(clUrl,{method:'POST',body:JSON.stringify({history:clHistory})});clSyncStatus('ok','저장됨 ●');}
+  catch(e){clSyncStatus('err','저장 실패');}finally{clSaving=false;}
+}
+function clUpdateBadges(){document.getElementById('cl-badge-p').textContent=clPersons.length;document.getElementById('cl-badge-z').textContent=clZones.length;document.getElementById('cl-badge-r').textContent=(clPersons.length&&clZones.length)?`${clPersons.length}:${clZones.length}`:'-';}
+function clAddPerson(){const input=document.getElementById('cl-person-input');const name=input.value.trim();if(!name)return;if(clPersons.includes(name)){showToast('이미 있어요!');return;}clPersons.push(name);input.value='';localStorage.setItem('clean-persons',JSON.stringify(clPersons));clRenderPersons();}
+function clRemovePerson(idx){clPersons.splice(idx,1);localStorage.setItem('clean-persons',JSON.stringify(clPersons));clRenderPersons();}
+function clRenderPersons(){
+  const el=document.getElementById('cl-persons-grid');
+  if(!clPersons.length){el.innerHTML='<span style="font-size:12px;color:#4a7060">인원을 추가해주세요</span>';clUpdateBadges();return;}
+  el.innerHTML=clPersons.map((n,i)=>`<div class="tag person">${n}<button class="rm" onclick="clRemovePerson(${i})">×</button></div>`).join('');clUpdateBadges();
+}
+function clAddZone(){const input=document.getElementById('cl-zone-input');const name=input.value.trim();if(!name)return;if(clZones.includes(name)){showToast('이미 있어요!');return;}clZones.push(name);input.value='';localStorage.setItem('clean-zones',JSON.stringify(clZones));clRenderZones();}
+function clRemoveZone(idx){clZones.splice(idx,1);localStorage.setItem('clean-zones',JSON.stringify(clZones));clRenderZones();}
+function clEditZone(idx){
+  const el=document.getElementById('cl-zones-grid').children[idx];const name=clZones[idx];
+  el.classList.add('editing');el.innerHTML=`<input type="text" value="${name}" maxlength="15" onblur="clFinishEdit(${idx},this.value)" onkeydown="if(event.key==='Enter')this.blur()"><button class="rm" onclick="clRemoveZone(${idx})">×</button>`;
+  el.querySelector('input').focus();el.querySelector('input').select();
+}
+function clFinishEdit(idx,val){val=val.trim();if(val&&val!==clZones[idx]){if(clZones.includes(val)){showToast('이미 있는 구역이에요!');clRenderZones();return;}clZones[idx]=val;localStorage.setItem('clean-zones',JSON.stringify(clZones));}clRenderZones();}
+function clRenderZones(){
+  const el=document.getElementById('cl-zones-grid');
+  if(!clZones.length){el.innerHTML='<span style="font-size:12px;color:#4a7060">구역을 추가해주세요</span>';clUpdateBadges();return;}
+  el.innerHTML=clZones.map((z,i)=>`<div class="tag zone" onclick="clEditZone(${i})" title="클릭하면 수정">✏ ${z}<button class="rm" onclick="event.stopPropagation();clRemoveZone(${i})">×</button></div>`).join('');clUpdateBadges();
+}
+function clDoMatch(){
+  if(!clPersons.length||!clZones.length){showToast('인원과 구역을 먼저 추가해주세요!');return;}
+  const sp=shuffle(clPersons),sz=shuffle(clZones);
+  const result={};sz.forEach(z=>result[z]=[]);sp.forEach((p,i)=>result[sz[i%sz.length]].push(p));
+  clMatch=result;document.getElementById('cl-save-match').style.display='inline-flex';
+  const perZ=Math.ceil(clPersons.length/clZones.length);
+  document.getElementById('cl-match-info').textContent=`구역당 약 ${perZ}명씩 배정됐어요.`;
+  document.getElementById('cl-match-grid').innerHTML=Object.entries(result).map(([zone,pList])=>
+    `<div class="match-card"><div class="match-zone">🧹 ${zone}</div><div class="match-arrow">→</div><div class="match-persons">${pList.length?pList.map(p=>`<span class="match-person-tag">${p}</span>`).join(''):'<span style="font-size:12px;color:#4a7060;font-style:italic">미배정</span>'}</div></div>`
+  ).join('');showToast('랜덤 매칭 완료! 🧹');
+}
+async function clSaveMatch(){
+  if(!clMatch)return;const now=new Date();const date=`${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  clHistory.push({date,match:clMatch});if(clHistory.length>30)clHistory=clHistory.slice(-30);
+  clRenderHistory();await clSaveToServer();document.getElementById('cl-save-match').style.display='none';showToast('💾 이번 주 당번 저장 완료!');
+}
+async function clClearHistory(){if(!confirm('기록을 전부 삭제할까요?'))return;clHistory=[];await clSaveToServer();clRenderHistory();}
+function clRenderHistory(){
+  const el=document.getElementById('cl-hist-list');
+  if(!clHistory.length){el.innerHTML='<p class="empty-msg">// 아직 기록이 없어요</p>';return;}
+  el.innerHTML=[...clHistory].reverse().map(h=>`<div class="cl-hist-entry"><div class="cl-hist-date">📅 ${h.date}</div><div class="cl-hist-matches">${Object.entries(h.match).map(([zone,pList])=>`<div class="cl-hist-row"><span class="cl-hist-zone">${zone}</span><span style="color:#4a7060">→</span><div class="cl-hist-persons">${pList.map(p=>`<span class="cl-hist-person">${p}</span>`).join('')}</div></div>`).join('')}</div></div>`).join('');
 }
 
-async function addMenu() {
-  const input = document.getElementById('new-menu-input');
-  const name = input.value.trim();
-  if (!name) return;
-  if (state.menus.includes(name)) { showToast('이미 있는 메뉴예요!'); return; }
-  state.menus.push(name);
-  input.value = '';
-  render();
-  await saveState();
-  showToast(name + ' 추가됨!');
-}
-
-async function deleteMenu(idx) {
-  const menu = state.menus[idx];
-  if (!confirm(`"${menu}" 를 삭제할까요?`)) return;
-  state.menus.splice(idx, 1);
-  if (state.votes[menu]) delete state.votes[menu];
-  render();
-  await saveState();
-}
-
-async function clearHistory() {
-  if (!confirm('기록을 전부 삭제할까요?')) return;
-  state.history = [];
-  await saveState();
-  renderHistory();
-  showToast('기록 삭제 완료');
-}
-
-setInterval(loadState, 30000);
-loadState();
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+lRender();
+cRenderPersons();cRenderHistory();
+clRenderPersons();clRenderZones();clRenderHistory();clUpdateBadges();
+setInterval(()=>{lLoadState();cLoadState();clLoadState();},30000);
+lLoadState();cLoadState();clLoadState();
 </script>
 </body>
 </html>
