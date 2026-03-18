@@ -934,14 +934,54 @@ function clRenderZones(){
 }
 function clDoMatch(){
   if(!clPersons.length||!clZones.length){showToast('인원과 구역을 먼저 추가해주세요!');return;}
-  const sp=shuffle(clPersons),sz=shuffle(clZones);
-  const result={};sz.forEach(z=>result[z]=[]);sp.forEach((p,i)=>result[sz[i%sz.length]].push(p));
-  clMatch=result;document.getElementById('cl-save-match').style.display='inline-flex';
-  const perZ=Math.ceil(clPersons.length/clZones.length);
-  document.getElementById('cl-match-info').textContent=`구역당 약 ${perZ}명씩 배정됐어요.`;
-  document.getElementById('cl-match-grid').innerHTML=Object.entries(result).map(([zone,pList])=>
-    `<div class="match-card"><div class="match-zone">🧹 ${zone}</div><div class="match-arrow">→</div><div class="match-persons">${pList.length?pList.map(p=>`<span class="match-person-tag">${p}</span>`).join(''):'<span style="font-size:12px;color:#4a7060;font-style:italic">미배정</span>'}</div></div>`
-  ).join('');showToast('랜덤 매칭 완료! 🧹');
+
+  // 저번 주 기록에서 person -> zone 매핑 추출
+  const lastMatch = clHistory.length ? clHistory[clHistory.length-1].match : null;
+  const lastPersonZone = {}; // { 이름: 저번주구역 }
+  if(lastMatch){
+    Object.entries(lastMatch).forEach(([zone, persons]) => {
+      persons.forEach(p => { lastPersonZone[p] = zone; });
+    });
+  }
+
+  // 최대 10번 시도해서 저번주랑 안 겹치는 배정 찾기
+  let result = {};
+  let attempts = 0;
+  while(attempts < 10) {
+    const sp = shuffle(clPersons);
+    const sz = shuffle(clZones);
+    result = {};
+    sz.forEach(z => result[z] = []);
+    sp.forEach((p, i) => result[sz[i % sz.length]].push(p));
+
+    // 저번주랑 겹치는 사람 있는지 체크
+    let conflict = false;
+    if(lastMatch) {
+      Object.entries(result).forEach(([zone, persons]) => {
+        persons.forEach(p => {
+          if(lastPersonZone[p] === zone) conflict = true;
+        });
+      });
+    }
+    if(!conflict) break;
+    attempts++;
+  }
+
+  const hasLastRecord = !!lastMatch;
+  clMatch = result;
+  document.getElementById('cl-save-match').style.display = 'inline-flex';
+  const perZ = Math.ceil(clPersons.length / clZones.length);
+  const infoMsg = hasLastRecord
+    ? `저번 주 기록 반영해서 배정했어요! (구역당 약 ${perZ}명)`
+    : `구역당 약 ${perZ}명씩 배정됐어요.`;
+  document.getElementById('cl-match-info').textContent = infoMsg;
+  document.getElementById('cl-match-grid').innerHTML = Object.entries(result).map(([zone, pList]) =>
+    `<div class="match-card"><div class="match-zone">🧹 ${zone}</div><div class="match-arrow">→</div><div class="match-persons">${pList.length ? pList.map(p => {
+      const warn = lastPersonZone[p] === zone;
+      return `<span class="match-person-tag" style="${warn?'background:#f5c842;':''}">  ${warn?'⚠ ':''}${p}</span>`;
+    }).join('') : '<span style="font-size:12px;color:#4a7060;font-style:italic">미배정</span>'}</div></div>`
+  ).join('');
+  showToast(hasLastRecord ? '저번 주 피해서 배정 완료! 🧹' : '랜덤 매칭 완료! 🧹');
 }
 async function clSaveMatch(){
   if(!clMatch)return;const now=new Date();const date=`${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
